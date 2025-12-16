@@ -135,131 +135,69 @@ no se carga.
     existe en la carpeta **`css/`** del proyecto.
 3.  **Verificar config.js:** La constante `TEMA_FILES` en `js/config.js`
     debe contener el mapeo correcto de temas a archivos CSS.
-    Los temas disponibles son: def, pro, min.
+4.  **Verificar config.js:** El objeto `DURACION_OPCIONES` debe
 
----
+    # Guía de solución de problemas (troubleshooting)
 
-4. PROBLEMAS CON EL SISTEMA DE EXPANSIÓN DE ERRORES
+    Este documento recoge las incidencias más comunes y cómo solucionarlas paso a paso.
 
----
+    1. Despliegue y configuración
 
-### Problema 4.1: El botón toggle (▼/▲) de errores no funciona.
+    - Problema: la página aparece en blanco tras desplegar.
 
-**Causa:** La función de toggle no está cargada o los elementos
-HTML no existen.
+      - Verificá los logs de Deploy en Netlify (Deploys) por errores.
+      - Asegurate de que `netlify.toml` existe y apunta a `netlify/functions`.
+      - Revisá `package.json` si faltan dependencias (p. ej. `node-fetch`).
 
-**Solución:**
+    - Problema: error 404/500 al invocar la función proxy.
+      - Confirmá que `netlify/functions/check-status.js` exista.
+      - Verificá que `js/config.js` tenga `PROXY_ENDPOINT = '/.netlify/functions/check-status'`.
 
-1.  **Verificar script.js:** Confirme que la función `toggleErrores(url)`
-    esté definida en `js/script.js`.
-2.  **Verificar HTML:** El botón debe tener el atributo
-    `onclick="toggleErrores('URL')"` donde URL es la dirección
-    del sitio monitoreado.
-3.  **Verificar CSS:** Los estilos `.error-details` deben estar
-    definidos en `css/monitor_base.css`.
-4.  **Abrir Consola:** Presione F12 y busque errores JavaScript.
+    2. Disponibilidad y latencia
 
-### Problema 4.2: El contador de errores "⚠️ X/Y" no aparece.
+    - Problema: un sitio aparece como "CAÍDA" pero está online.
 
-**Causa:** No se han detectado errores o la función de contador
-está deshabilitada.
+      - Revisá `webs.json` por errores de URL (protocolo, dominio mal escrito).
+      - Puede deberse a timeout del proxy (por defecto 9s). Si la API es muy lenta, considera optimizaciones o ajustar timeouts en la función.
+      - Evitá URLs que redirijan muchas veces; usa la URL final.
 
-**Solución:**
+    - Problema: latencias siempre en 'LENTO' o 'CRÍTICO'.
+      - Revisá los umbrales en `js/config.js` y consultá `docs/justificacion_rangos_latencia.md`.
+      - Si el servicio no puede mejorar, ajustá los umbrales para reflejar la realidad operativa.
 
-1.  **Provocar un Error:** Cambia temporalmente una URL en `webs.json`
-    a una dirección inválida (ej: `http://sitio-inexistente.test`).
-2.  **Verificar sessionStorage:** Abre la consola (F12), pestaña
-    **Application** > **Session Storage** y busca claves que
-    comiencen con `errores_`. Deben contener un array de errores.
-3.  **Verificar config.js:** La constante `LIMITE_ERRORES_MOSTRADOS`
-    debe estar definida (valor recomendado: 10).
+    3. Frontend y datos
 
----
+    - Problema: los promedios históricos no se reinician.
 
-5. PROBLEMAS CON EL SELECTOR DE DURACIÓN
+      - El historial se guarda en `sessionStorage`. Usá el botón "Reiniciar Monitoreo" para limpiar datos.
+      - O limpiá manualmente `sessionStorage` desde las herramientas del navegador (Application → Session Storage).
 
----
+    - Problema: un tema no se aplica.
+      - Verificá el parámetro `?tema=` en la URL y la existencia del archivo CSS en `css/`.
+      - Confirmá que `TEMA_FILES` en `js/config.js` tenga el mapeo correcto.
 
-### Problema 5.1: Cambiar la duración no afecta el historial.
+    4. Sistema de expansión de errores
 
-**Causa:** El selector no está conectado correctamente o la
-función de cambio no se ejecuta.
+    - Problema: el toggle de errores no funciona.
+      - Verificá que la función `toggleErrores(url)` esté definida y que el HTML tenga el `onclick` correcto.
+      - Revisá consola por errores JavaScript.
 
-**Solución:**
+    5. Selector de duración
 
-1.  **Verificar HTML:** Confirme que existe
-    `<select id="selector-duracion">` en `index.html`.
-2.  **Verificar config.js:** El objeto `DURACION_OPCIONES` debe
-    contener:
-    ```javascript
-    { '12h': 144, '1d': 288, '3d': 864, '7d': 2016 }
-    ```
-3.  **Verificar script.js:** La función que escucha el evento
-    `change` del selector debe actualizar `sessionStorage` con
-    la clave `duracion_seleccionada`.
-4.  **Reiniciar Monitoreo:** Presione el botón "🔄 Reiniciar Monitoreo"
-    después de cambiar la duración para limpiar el historial antiguo.
+    - Problema: cambiar la duración no afecta el historial.
+      - Comprobá que existe el `<select id="selector-duracion">` y que el evento `change` actualiza `sessionStorage`.
+      - Usá "Reiniciar Monitoreo" tras cambiar la duración.
 
-### Problema 5.2: El monitoreo no se pausa al alcanzar el límite.
+    6. Leyenda y estilos
 
-**Causa:** La validación del límite de mediciones no funciona.
+    - Problema: `leyenda.html` muestra estilos rotos.
+      - Verificá que los archivos `leyenda_*.css` existen en `css/`.
+      - Asegurate de pasar `?tema=` en la URL si querés un tema específico.
 
-**Solución:**
+    7. Internacionalización (i18n)
 
-1.  **Verificar script.js:** La función de monitoreo debe comprobar
-    si el número de mediciones almacenadas es >= al límite
-    configurado antes de realizar una nueva medición.
-2.  **Verificar Consola:** Abre F12 y busca mensajes que indiquen
-    "Límite de mediciones alcanzado" o similar.
-3.  **Cambiar Duración:** Si el límite está mal configurado,
-    cambia temporalmente a una duración mayor (ej: de 12h a 1d)
-    y presiona "Reiniciar Monitoreo".
+    - Problema: los textos aparecen en el idioma equivocado.
+      - Agregá `?lang=es` o `?lang=en` a la URL.
+      - Revisá que `js/i18n_es.js` y `js/i18n_en.js` estén presentes y sin errores de sintaxis.
 
----
-
-6. PROBLEMAS CON LA PÁGINA DE LEYENDA
-
----
-
-### Problema 6.1: leyenda.html no carga o muestra estilos incorrectos.
-
-**Causa:** Los archivos CSS de leyenda no existen o el tema
-no se aplica correctamente.
-
-**Solución:**
-
-1.  **Verificar Archivos:** Confirme que existen `leyenda_base.css`,
-    `leyenda_def.css`, `leyenda_pro.css`, `leyenda_min.css` en
-    la carpeta **`css/`**.
-2.  **Verificar URL:** La página debe recibir el parámetro `?tema=`
-    (ej: `leyenda.html?tema=pro`).
-3.  **Verificar leyenda_script.js:** Este archivo debe aplicar
-    el tema dinámicamente al cargar la página.
-4.  **Verificar i18n:** Si los textos aparecen en inglés cuando
-    deberían estar en español, verifica que `?lang=es` esté
-    en la URL.
-
----
-
-7. PROBLEMAS CON INTERNACIONALIZACIÓN (i18n)
-
----
-
-### Problema 7.1: Los textos aparecen en inglés cuando debería
-
-ser español (o viceversa).
-
-**Causa:** El parámetro de idioma no está en la URL o los
-archivos de traducción no se cargan.
-
-**Solución:**
-
-1.  **Verificar URL:** Asegúrese de que la URL contenga `?lang=es`
-    o `?lang=en`.
-2.  **Verificar Archivos:** Confirme que `js/i18n_es.js` y
-    `js/i18n_en.js` existan y estén correctamente formateados.
-3.  **Verificar script.js:** La función que carga traducciones
-    debe leer el parámetro `lang` de la URL y aplicar el
-    objeto de traducciones correspondiente.
-4.  **Abrir Consola:** Presione F12 y busque errores de carga
-    de archivos JavaScript.
+    Si necesitás, puedo agregar comprobaciones automáticas o pequeños scripts para validar la estructura de `webs.json` y la existencia de archivos CSS/JS al desplegar.

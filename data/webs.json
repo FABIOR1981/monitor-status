@@ -20,7 +20,7 @@
   },
   {
     "nombre": "ExportaFacil",
-    "url": "http://www.exportafacil.com.uy/exportafacil/"
+    "url": "http://www.exportafacil.com.uy/exportafacil"
   },
   {
     "nombre": "Aduanas Clientes",
@@ -34,5 +34,9 @@
   {
     "nombre": "Notas",
     "url": "https://notas.correo.com.uy/notas"
+  },
+  {
+    "nombre": "Probar error",
+    "url": "http://www.exportafacil.com.uy/exportafacil1234"
   }
 ]

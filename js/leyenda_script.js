@@ -189,39 +189,58 @@ function actualizarBotonToggle(temaActual) {
 
   if (!themeBtn) return;
 
-  // Revisar si el tema actual tiene una pareja para alternar
+  // Normalizar temaActual: aceptar 'theme-xxx', rutas CSS o claves
+  let tema = temaActual || '';
+  if (typeof tema === 'string' && tema.startsWith('theme-')) {
+    tema = tema.replace('theme-', '');
+  }
+  if (
+    typeof tema === 'string' &&
+    (tema.indexOf('/') !== -1 || tema.indexOf('.css') !== -1)
+  ) {
+    for (const k in TEMA_FILES) {
+      if (
+        TEMA_FILES[k] &&
+        tema.indexOf(TEMA_FILES[k].split('/').pop()) !== -1
+      ) {
+        tema = k;
+        break;
+      }
+    }
+  }
+
   const tieneParejaToggle =
     typeof TEMA_TOGGLE_PAIRS !== 'undefined' &&
-    TEMA_TOGGLE_PAIRS.hasOwnProperty(temaActual);
+    TEMA_TOGGLE_PAIRS.hasOwnProperty(tema);
 
   if (!tieneParejaToggle) {
-    // Si no hay pareja, ocultamos el botón
     themeBtn.style.display = 'none';
     return;
   }
 
-  // Si hay pareja, mostramos el botón
   themeBtn.style.display = 'block';
-
   if (!themeIcon) return;
 
-  // Cambiamos el ícono según el tema actual (igual que en script.js)
-  if (temaActual === 'osc') {
-    themeIcon.textContent = '☀️';
-    themeBtn.setAttribute('title', 'Cambiar a modo claro (DEF)');
-  } else if (temaActual === 'def') {
-    themeIcon.textContent = '🌙';
-    themeBtn.setAttribute('title', 'Cambiar a modo oscuro (OSC)');
-  } else if (temaActual === 'pro') {
-    themeIcon.textContent = '☀️';
-    themeBtn.setAttribute('title', 'Cambiar a modo claro (PRO2)');
-  } else if (temaActual === 'pro2') {
-    themeIcon.textContent = '🌙';
-    themeBtn.setAttribute('title', 'Cambiar a modo oscuro (PRO)');
-  } else {
-    // Si el tema no se reconoce pero tiene pareja
+  const temaDestino = TEMA_TOGGLE_PAIRS[tema];
+  if (!temaDestino) {
     themeIcon.textContent = '🔄';
     themeBtn.setAttribute('title', 'Alternar tema');
+    return;
+  }
+
+  const destinosOscuros = [TEMA_OSC, TEMA_PRO];
+  if (destinosOscuros.includes(temaDestino)) {
+    themeIcon.textContent = '🌙';
+    themeBtn.setAttribute(
+      'title',
+      `Cambiar a modo oscuro (${temaDestino.toUpperCase()})`
+    );
+  } else {
+    themeIcon.textContent = '☀️';
+    themeBtn.setAttribute(
+      'title',
+      `Cambiar a modo claro (${temaDestino.toUpperCase()})`
+    );
   }
 }
 

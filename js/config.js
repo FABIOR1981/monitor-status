@@ -11,12 +11,17 @@ const UMBRALES_LATENCIA = {
   PENALIZACION_FALLO: 99999, // Valor especial para marcar fallos (no cuenta en el promedio)
 };
 
+// -----------------------------
+// 1) Temas y archivos CSS (UI)
+// -----------------------------
+// Nombres de temas disponibles en la UI
 const TEMA_DEFAULT = 'def';
 const TEMA_PRO = 'pro';
 const TEMA_PRO2 = 'pro2'; // Versión clara de PRO
 const TEMA_MIN = 'min';
 const TEMA_OSC = 'osc';
 
+// Archivo CSS asociado a cada tema
 const TEMA_FILES = {
   [TEMA_DEFAULT]: 'css/monitor_def.css',
   [TEMA_PRO]: 'css/monitor_pro.css',
@@ -25,18 +30,16 @@ const TEMA_FILES = {
   [TEMA_OSC]: 'css/monitor_osc.css',
 };
 
-// Temas que se pueden alternar con el botón de cambiar tema
-// Si un tema no tiene pareja, el botón no se muestra
-// El orden es: primero claros a oscuros, después oscuros a claros
+// Pares de temas para alternar (botón cambiar tema)
+// Si un tema no tiene pareja, el botón de alternar se oculta
 const TEMA_TOGGLE_PAIRS = {
   [TEMA_DEFAULT]: TEMA_OSC, // def (claro) → osc (oscuro)
   [TEMA_OSC]: TEMA_DEFAULT, // osc (oscuro) → def (claro)
   [TEMA_PRO2]: TEMA_PRO, // pro2 (claro) → pro (oscuro)
   [TEMA_PRO]: TEMA_PRO2, // pro (oscuro) → pro2 (claro)
-  // min no tiene pareja, entonces el botón se oculta
 };
 
-// Temas básicos: estos no tienen funciones avanzadas (no muestran detalles de errores ni botón PSI)
+// Temas que no muestran funciones avanzadas (ej. detalles de error)
 const TEMAS_BASICOS = [TEMA_DEFAULT];
 
 const DEFAULT_LEYENDA_TEMA = TEMA_DEFAULT;
@@ -49,6 +52,9 @@ const LEYENDA_TEMA_FILES = {
   osc: 'css/leyenda_oscuro.css',
 };
 
+// -----------------------------
+// 2) Umbrales y estados
+// -----------------------------
 const ESTADO_ERROR_CONEXION = 0;
 
 const HTTP_STATUS_SUCCESS = {
@@ -81,40 +87,63 @@ const HTTP_STATUS_ERROR = {
   GATEWAY_TIMEOUT: 504,
 };
 
+// -----------------------------
+// 3) Proxy, frecuencia y archivos
+// -----------------------------
 const PROXY_ENDPOINT = '/.netlify/functions/check-status';
+// Frecuencia de monitoreo en milisegundos (por defecto: 5 minutos)
 const FRECUENCIA_MONITOREO_MS = 5 * 60 * 1000;
 
+const WEBSITES_FILE = 'data/webs.json';
+const PSI_BASE_URL = 'https://pagespeed.web.dev/report?url=';
+
+// -----------------------------
+// 4) Opciones de historial/duración
+// -----------------------------
 const HORAS_DISPONIBLES = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-// Armamos las opciones de duración del historial de forma automática
 // Cada hora equivale a 12 mediciones (una cada 5 minutos)
 const DURACION_OPCIONES = {};
 HORAS_DISPONIBLES.forEach((horas) => {
   const key = `${horas}h`;
   DURACION_OPCIONES[key] = {
-    mediciones: horas * 12, // 12 mediciones por cada hora (una cada 5 minutos)
+    mediciones: horas * 12,
     etiqueta: horas === 1 ? '1 hora' : `${horas} horas`,
   };
 });
 
 const DURACION_DEFAULT = '1h';
-
 const MAX_HISTORIAL_ENTRIES = DURACION_OPCIONES[DURACION_DEFAULT].mediciones;
-const PSI_BASE_URL = 'https://pagespeed.web.dev/report?url=';
-const WEBSITES_FILE = 'data/webs.json';
 
-// Archivos de idioma disponibles
-// Se cargan automáticamente según el parámetro ?lang=XX en la URL
+// -----------------------------
+// 5) I18N (archivos de idioma)
+// -----------------------------
+// Lista de archivos de traducción disponibles (clave de idioma -> archivo)
 const I18N_FILES = {
   es: 'lang/i18n_es.js',
   en: 'lang/i18n_en.js',
   fr: 'lang/i18n_fr.js',
 };
 
-const DEFAULT_LANG = 'es'; // Idioma por defecto si no se elige otro
+const DEFAULT_LANG = 'es'; // Idioma por defecto
 
-// Configuración para detectar un fallo global
+// -----------------------------
+// 6) Detección de fallo global
+// -----------------------------
 // Se activa si el 80% o más de los servicios críticos fallan o tardan más de 9 segundos
 const GRUPO_CRITICO_NOMBRE = 'CRITICO'; // Nombre del grupo de servicios críticos
 const UMBRAL_FALLO_GLOBAL_MS = 9000; // Si tarda más de 9 segundos, se considera fallo
-const PORCENTAJE_FALLO_GLOBAL = 0.8; // Si falla el 80% de los servicios críticos, se activa la alerta global
+const PORCENTAJE_FALLO_GLOBAL = 0.8; // Umbral en proporción (0.8 = 80%)
+
+// -----------------------------
+// 7) Configuraciones de alertas en frontend (UI)
+// -----------------------------
+// Tiempo por defecto para auto-cerrar las notificaciones (ms)
+const ALERTAS_AUTO_CLOSE_MS = 30000;
+// Tiempo para restaurar la etiqueta del botón copiar (ms)
+const ALERTAS_COPY_LABEL_RESET_MS = 1500;
+
+// -----------------------------
+// 8) Umbrales de latencia (definición colocada al final por visibilidad)
+// -----------------------------
+// (Se mantiene la definición arriba; esta sección es referencial)

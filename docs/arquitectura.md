@@ -1,92 +1,36 @@
-======================================================
-ARQUITECTURA Y FLUJO DE DATOS DEL MONITOR
-======================================================
+# Arquitectura y flujo de datos
 
-OBJETIVO:
-Garantizar la disponibilidad del monitor y evitar fallos por
-políticas de seguridad del navegador (CORS / Mixed Content)
-al verificar URLs externas de terceros.
+Breve explicación de cómo funciona el sistema y por qué usamos un proxy serverless.
 
----
+Objetivo
 
-1. FLUJO DE DATOS DETALLADO (Ciclo de 5 minutos)
+- Proteger la comprobación de URLs externas frente a limitaciones del navegador (CORS, Mixed Content) y medir latencia de forma consistente.
 
----
+Flujo general (ciclo típico)
 
-1. INICIO (script.js):
-   La función 'monitorearTodosWebsites()' lee 'webs.json'
-   (ubicado en la raíz del proyecto) y establece un bucle de
-   verificación para cada URL.
+1. `script.js` lee `data/webs.json` y programa las comprobaciones.
+2. El frontend invoca la función proxy: `/.netlify/functions/check-status?url=...`.
+3. La función serverless (`check-status.js`) hace la petición al destino y mide latencia.
+   - Mide tiempo total (DNS, TCP, SSL, procesamiento).
+   - Si la petición pasa de 9s, se aborta y se marca como fallo (status: 0) para evitar exceder el límite de ejecución.
+   - Maneja redirecciones y puede ignorar certificados inválidos para medir disponibilidad.
+4. La función devuelve un JSON con el `status` real del servicio y la `time` en ms.
+5. El frontend procesa la respuesta, actualiza historial, calcula promedios y pinta la tabla.
 
-2. INVOCACIÓN DEL PROXY (script.js):
-   El frontend llama a la función Netlify Serverless:
-   -> Endpoint: /.netlify/functions/check-status?url=[URL_DESTINO]
+Procesamiento en el frontend
 
-3. EJECUCIÓN SERVERLESS (check-status.js):
-   a. El entorno Node.js ejecuta una petición HTTP **'GET'**
-   completa a la URL de destino.
-   b. **MIDE LA LATENCIA:** Registra el tiempo desde el
-   inicio del 'fetch' hasta la recepción completa de la
-   respuesta (incluye DNS, TCP, SSL y procesamiento).
-   c. **MANEJO DE TIMEOUT:** Si la petición supera los 9 segundos
-   (9000 ms), la función Serverless aborta la petición y
-   devuelve un **'status: 0'** para marcar una caída sin
-   exceder el límite de ejecución de Netlify (10s).
-   d. **MANEJO DE SSL:** Utiliza agentes HTTP/HTTPS que ignoran
-   certificados SSL inválidos para poder monitorear
-   disponibilidad del servicio independientemente de la
-   validez de sus certificados.
-   e. **SEGUIMIENTO DE ERRORES:** Cada fallo se registra con
-   timestamp, código HTTP, mensaje de error y latencia para
-   análisis posterior.
+- Registra errores con timestamp, código HTTP y mensaje.
+- Guarda historial en `sessionStorage` y calcula promedios solo con mediciones exitosas (status 200).
+- Muestra indicadores visuales (p. ej. "⚠️ X/Y") y permite expandir detalles de errores (últimos N registros).
+- Si se alcanza el límite de registros configurado, el sistema pausa nuevas mediciones hasta que el usuario reinicie o cambie la duración.
 
-4. RESPUESTA SERVERLESS:
-   La función siempre responde al frontend con un
-   'statusCode: 200' (respuesta del proxy), pero el cuerpo JSON
-   contiene los datos del sitio destino:
-   -> Body: { status: [CÓDIGO_DESTINO], time: [LATENCIA_MS] }
+Por qué usar un proxy serverless
 
-5. PROCESAMIENTO FRONTEND (script.js):
-   El frontend : 12 horas [144 mediciones], 1 día [288],
-   3 días [864], o 7 días [2016]).
-   c. **REGISTRO DE ERRORES:** Si el status ≠ 200 o la latencia
+- Evita problemas de CORS y mixed content.
+- Permite medir latencia completa desde el servidor (más fiable que solo tiempos en el navegador).
+- Controla timeouts y número de reintentos sin depender del cliente.
 
-   > = 99999ms, almacena el error con timestamp, código HTTP,
-   > mensaje descriptivo y latencia.
-   > d. **CONTADOR DE ERRORES:** Muestra indicador visual "⚠️ X/Y"
-   > en la columna promedio donde X = errores, Y = total mediciones.
-   > e. **EXPANSIÓN DE DETALLES:** Botón toggle (▼) permite ver
-   > historial de últimos 10 errores con fecha/hora, código,
-   > mensaje y latencia.
-   > f. Calcula el Promedio Histórico solo con mediciones exitosas
-   > (status 200) y el Estado Promedio (usando los umbrales de
-   > `justificacion_rangos_latencia.md`).
-   > g. Dibuja la Tabla con la clasificación visual.
-   > h. **CONTROL DE MÁXIMO:** Al alcanzar el límite de mediciones
-   > configurado, el monitoreo se pausa automáticamente hasta
-   > que el usuario presione el botón "Reiniciar Monitoreo" o
-   > cambie la duración del historial
-   > e. **CONTROL DE MÁXIMO:** Al alcanzar el límite de mediciones
-   > configurado, el monitoreo se pausa automáticamente hasta
-   > que el usuario presione el botón "Reiniciar Monitoreo".
+Notas operativas
 
-6. JUSTIFICACIÓN DEL PROXY SERVERLESS (check-status.js)
-
----
-
-La función Serverless es crucial para la estabilidad y seguridad:
-
-- **Evitar CORS (Cross-Origin Resource Sharing):** El Serverless
-  ejecuta la petición en un entorno Node.js, donde las
-  restricciones CORS del navegador no aplican.
-- **Evitar Mixed Content:** Permite al monitor, servido por
-  HTTPS, verificar URLs de destino que usen HTTP (como se ve en
-  `data/webs.json` con `http://www.exportafacil.com.uy`) sin que el
-  navegador bloquee la petición.
-- **Control de Timeout:** El timeout de 9 segundos protege los
-  límites de ejecución de Netlify (máx. 10s para funciones gratuitas).
-- **Manejo de Redirecciones:** Sigue automáticamente redirecciones
-  HTTP y cambia de agente (HTTP/HTTPS) según sea necesario.
-- **Resiliencia:** Retorna siempre HTTP 200 al frontend, con el
-  status real del servicio en el body, diferenciando entre fallo
-  de la función serverless vs. fallo del servicio monitoreado.
+- Timeout recomendado para la función: 9s (ajustable según plan/oferta del proveedor).
+- La función devuelve siempre `200` al navegador; la información real del servicio está en el body del JSON.
