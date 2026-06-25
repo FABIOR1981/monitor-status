@@ -82,47 +82,63 @@ exports.handler = async (event, context) => {
       agentToUse = undefined;
     }
 
-    const response = await fetch(targetUrl, {
-      method: 'GET',
-      signal: controller.signal,
-      redirect: 'follow',
-      agent: agentToUse,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Monitor-Status-Check)',
-      },
-    });
+    // Intentos con reintentos y UA alternativo para mitigar bloqueos o fallos transitorios
+    const defaultUA = 'Mozilla/5.0 (Monitor-Status-Check)';
+    const altUA =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36';
 
-    // Si la respuesta fue un error de redirección/agent inesperado y la URL original era HTTP,
-    // intentamos reintentar sin agente para cubrir casos donde el agente seleccionable provoca fallos.
-    // Esto es un fallback diagnóstico, no debe usarse como comportamiento permanente.
-    if (!response || response.status === 0) {
+    const attemptConfigs = [
+      { agent: agentToUse, ua: defaultUA },
+      { agent: undefined, ua: defaultUA },
+      { agent: undefined, ua: altUA },
+    ];
+
+    let lastError = null;
+    let attemptIndex = 0;
+    const attemptsDiagnostics = [];
+
+    for (const cfg of attemptConfigs) {
+      attemptIndex++;
+      const attemptStart = Date.now();
       try {
-        console.warn(`Retrying ${targetUrl} without custom agent as fallback`);
-        const retryStart = Date.now();
-        const retryResp = await fetch(targetUrl, {
+        console.log(`Attempt ${attemptIndex} for ${targetUrl} (agent=${cfg.agent ? 'yes' : 'no'}, ua=${cfg.ua})`);
+        const resp = await fetch(targetUrl, {
           method: 'GET',
           signal: controller.signal,
           redirect: 'follow',
+          agent: cfg.agent,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Monitor-Status-Check)',
+            'User-Agent': cfg.ua,
           },
         });
-        const retryEnd = Date.now();
-        const retryTime = retryEnd - retryStart;
-        console.log(
-          `Retry URL: ${targetUrl} - Status: ${retryResp.status} - Time: ${retryTime}ms`
-        );
+
+        const attemptEnd = Date.now();
+        const attemptTime = attemptEnd - attemptStart;
+        attemptsDiagnostics.push({ attempt: attemptIndex, status: resp.status, time: attemptTime, ua: cfg.ua, agent: !!cfg.agent });
+
+        // Consideramos éxito si responde con cualquier código HTTP (incluso 4xx/5xx)
         clearTimeout(timeoutId);
+        console.log(`Success attempt ${attemptIndex} for ${targetUrl} - status ${resp.status}`);
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify({ status: retryResp.status, time: retryTime }),
+          body: JSON.stringify({ status: resp.status, time: attemptTime, attempts: attemptsDiagnostics }),
         };
-      } catch (e) {
-        // Si el retry falla, continuamos al catch principal
-        console.warn(`Retry failed for ${targetUrl}: ${e.message}`);
+      } catch (errAttempt) {
+        const attemptEnd = Date.now();
+        const attemptTime = attemptEnd - attemptStart;
+        attemptsDiagnostics.push({ attempt: attemptIndex, error: errAttempt.message, time: attemptTime, ua: cfg.ua, agent: !!cfg.agent });
+        console.warn(`Attempt ${attemptIndex} failed for ${targetUrl}: ${errAttempt.message}`);
+        lastError = errAttempt;
+        // Backoff entre intentos
+        if (attemptIndex < attemptConfigs.length) {
+          await new Promise((r) => setTimeout(r, 500 * attemptIndex));
+        }
       }
     }
+
+    // Si llegamos acá, todos los intentos fallaron
+    throw lastError || new Error('All attempts failed');
 
     clearTimeout(timeoutId);
     const endTime = Date.now();
