@@ -49,13 +49,14 @@
   };
 
   // Función global para registrar un error y mostrar alert si corresponde
-  window.registrarErrorSitio = function (
-    nombre,
-    url,
-    latencia,
-    codigo,
-    descripcion
-  ) {
+    window.registrarErrorSitio = function (
+      nombre,
+      url,
+      latencia,
+      codigo,
+      descripcion,
+      diagnostics
+    ) {
     const clave = nombre;
     const erroresNotificados = getErroresNotificados();
     if (erroresNotificados[clave]) return; // Ya se notificó este sitio hasta que se recupere
@@ -86,6 +87,15 @@
     // si existe. Si no, usar la descripción genérica del código (`desc`).
     if (descripcion) mensaje += `Descripción: ${descripcion}`;
     else if (desc) mensaje += `Descripción: ${desc}`;
+
+    // Añadir detalles de diagnóstico (DNS, TCP, attempts) si están presentes
+    try {
+      if (diagnostics) {
+        mensaje += `\n\nDiagnostics: ${JSON.stringify(diagnostics)}`;
+      }
+    } catch (e) {
+      // ignore JSON errors
+    }
     mostrarNotificacionError(mensaje);
   };
 

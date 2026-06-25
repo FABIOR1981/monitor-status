@@ -796,7 +796,8 @@ function actualizarFila(web, resultado) {
         web.url,
         resultado.time,
         resultado.status,
-        resultado.error || ''
+        resultado.error || '',
+        resultado.diagnostics || resultado.attempts || null
       );
   } else if (resultado && resultado.status === 200) {
     // Si el sitio se recupera, limpiar el registro para permitir futuras alertas
