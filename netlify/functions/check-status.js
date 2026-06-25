@@ -56,6 +56,38 @@ exports.handler = async (event, context) => {
       },
     });
 
+    // Si la respuesta fue un error de redirección/agent inesperado y la URL original era HTTP,
+    // intentamos reintentar sin agente para cubrir casos donde el agente seleccionable provoca fallos.
+    // Esto es un fallback diagnóstico, no debe usarse como comportamiento permanente.
+    if (!response || response.status === 0) {
+      try {
+        console.warn(`Retrying ${targetUrl} without custom agent as fallback`);
+        const retryStart = Date.now();
+        const retryResp = await fetch(targetUrl, {
+          method: 'GET',
+          signal: controller.signal,
+          redirect: 'follow',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Monitor-Status-Check)',
+          },
+        });
+        const retryEnd = Date.now();
+        const retryTime = retryEnd - retryStart;
+        console.log(
+          `Retry URL: ${targetUrl} - Status: ${retryResp.status} - Time: ${retryTime}ms`
+        );
+        clearTimeout(timeoutId);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ status: retryResp.status, time: retryTime }),
+        };
+      } catch (e) {
+        // Si el retry falla, continuamos al catch principal
+        console.warn(`Retry failed for ${targetUrl}: ${e.message}`);
+      }
+    }
+
     clearTimeout(timeoutId);
     const endTime = Date.now();
     const responseTime = endTime - startTime;
