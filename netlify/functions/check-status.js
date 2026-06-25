@@ -2,6 +2,8 @@ const fetch = require('node-fetch');
 const AbortController = require('abort-controller');
 const https = require('https');
 const http = require('http');
+const dns = require('dns').promises;
+const net = require('net');
 
 // No validamos los certificados SSL porque lo importante es saber si el servicio responde, no si el certificado es válido
 const httpsAgent = new https.Agent({
@@ -28,7 +30,8 @@ exports.handler = async (event, context) => {
   };
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 9000);
+  const timeoutMs = 12000; // aumentar timeout para diagnosticar timeouts intermitentes
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const startTime = Date.now();
@@ -41,6 +44,39 @@ exports.handler = async (event, context) => {
     try {
       const parsed = new URL(targetUrl);
       agentToUse = parsed.protocol === 'http:' ? httpAgent : httpsAgent;
+
+      // Diagnósticos: resolver DNS y probar conexión TCP al host antes del fetch
+      let dnsInfo = null;
+      try {
+        const lookup = await dns.lookup(parsed.hostname);
+        dnsInfo = { address: lookup.address, family: lookup.family };
+        console.log(`DNS lookup for ${parsed.hostname}: ${lookup.address}`);
+      } catch (e) {
+        dnsInfo = { error: e.message };
+        console.warn(`DNS lookup failed for ${parsed.hostname}: ${e.message}`);
+      }
+
+      // Prueba TCP simple al puerto según esquema
+      const port = parsed.protocol === 'http:' ? 80 : 443;
+      const tcpResult = await (async function testTcp(host, port, tmo) {
+        return new Promise((resolve) => {
+          const socket = net.createConnection({ host, port }, () => {
+            socket.destroy();
+            resolve({ ok: true });
+          });
+          socket.setTimeout(Math.min(5000, tmo - 1000));
+          socket.on('error', (err) => {
+            socket.destroy();
+            resolve({ ok: false, error: err.message });
+          });
+          socket.on('timeout', () => {
+            socket.destroy();
+            resolve({ ok: false, error: 'tcp_timeout' });
+          });
+        });
+      })(parsed.hostname, port, timeoutMs);
+
+      console.log(`TCP test for ${parsed.hostname}:${port} -> ${JSON.stringify(tcpResult)}`);
     } catch (e) {
       // Si la URL no es válida, dejar agentToUse undefined y permitir el comportamiento por defecto
       agentToUse = undefined;
@@ -114,6 +150,16 @@ exports.handler = async (event, context) => {
     // Siempre devolvemos HTTP 200 con status=0 para que se pueda saber si:
     // - Falló la función serverless (sería un HTTP 500 real)
     // - Falló el servicio que estamos monitoreando (status: 0)
+    // Incluir diagnósticos en la respuesta para facilitar el debug desde el frontend
+    const diagnostics = {};
+    try {
+      // si la excepción contiene información útil, añadirla
+      diagnostics.errorName = error.name;
+      diagnostics.errorMessage = error.message;
+    } catch (e) {
+      // ignore
+    }
+
     return {
       statusCode: 200,
       headers,
@@ -121,6 +167,7 @@ exports.handler = async (event, context) => {
         status: 0,
         time: 99999,
         error: `${error.name}: ${error.message}`,
+        diagnostics,
       }),
     };
   }

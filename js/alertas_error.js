@@ -82,8 +82,10 @@
     mensaje += `Código: ${codigo}`;
     if (label) mensaje += ` - ${label}`;
     mensaje += `\n`;
-    if (desc) mensaje += `Descripción: ${desc}`;
-    else if (descripcion) mensaje += `Descripción: ${descripcion}`;
+    // Priorizar la descripción específica enviada por la función (`descripcion`),
+    // si existe. Si no, usar la descripción genérica del código (`desc`).
+    if (descripcion) mensaje += `Descripción: ${descripcion}`;
+    else if (desc) mensaje += `Descripción: ${desc}`;
     mostrarNotificacionError(mensaje);
   };
 
