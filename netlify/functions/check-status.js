@@ -33,18 +33,24 @@ exports.handler = async (event, context) => {
   try {
     const startTime = Date.now();
 
+    // Determinar el agente según el protocolo del target inicial.
+    // Evitamos pasar una función agent a node-fetch porque en algunos entornos
+    // las redirecciones HTTP->HTTPS pueden intentar reutilizar un agente
+    // incorrecto y provocar errores. Seleccionamos el agente antes del fetch.
+    let agentToUse;
+    try {
+      const parsed = new URL(targetUrl);
+      agentToUse = parsed.protocol === 'http:' ? httpAgent : httpsAgent;
+    } catch (e) {
+      // Si la URL no es válida, dejar agentToUse undefined y permitir el comportamiento por defecto
+      agentToUse = undefined;
+    }
+
     const response = await fetch(targetUrl, {
       method: 'GET',
       signal: controller.signal,
       redirect: 'follow',
-      // Usamos un agente que permite cambiar entre HTTPS y HTTP sin que falle por el cambio de protocolo
-      agent: (_parsedURL) => {
-        if (_parsedURL.protocol === 'http:') {
-          return httpAgent;
-        } else {
-          return httpsAgent;
-        }
-      },
+      agent: agentToUse,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Monitor-Status-Check)',
       },
