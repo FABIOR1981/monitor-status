@@ -137,25 +137,72 @@ exports.handler = async (event, context) => {
       }
     }
 
-    // Si llegamos acá, todos los intentos fallaron
-    throw lastError || new Error('All attempts failed');
+    // Si llegamos acá, todos los intentos directos fallaron.
+    // Intentar fallback mediante proxies públicos configurables.
+    const defaultProxies = [
+      'https://api.allorigins.win/raw?url=',
+      'https://api.codetabs.com/v1/proxy?quest=',
+    ];
 
-    clearTimeout(timeoutId);
-    const endTime = Date.now();
-    const responseTime = endTime - startTime;
+    let proxies = defaultProxies;
+    try {
+      if (process.env.FALLBACK_PROXIES) {
+        proxies = JSON.parse(process.env.FALLBACK_PROXIES);
+      }
+    } catch (e) {
+      console.warn('FALLBACK_PROXIES parse error, using defaults');
+      proxies = defaultProxies;
+    }
 
-    console.log(
-      `URL: ${targetUrl} - Status: ${response.status} - Time: ${responseTime}ms`
-    );
+    let proxyLastError = null;
+    const proxyAttempts = [];
+    for (const proxyBase of proxies) {
+      const proxyUrl = `${proxyBase}${encodeURIComponent(targetUrl)}`;
+      const pStart = Date.now();
+      try {
+        console.log(`Proxy attempt to ${proxyUrl}`);
+        const presp = await fetch(proxyUrl, {
+          method: 'GET',
+          signal: controller.signal,
+          redirect: 'follow',
+          headers: {
+            'User-Agent': defaultUA,
+          },
+        });
+        const pEnd = Date.now();
+        const pTime = pEnd - pStart;
+        proxyAttempts.push({ proxy: proxyBase, status: presp.status, time: pTime });
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        status: response.status,
-        time: responseTime,
-      }),
+        if (presp.ok) {
+          clearTimeout(timeoutId);
+          // Consideramos reachable: devolvemos status 200 y tiempo del proxy
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              status: 200,
+              time: pTime,
+              proxy: proxyBase,
+              attempts: attemptsDiagnostics,
+              proxyAttempts,
+            }),
+          };
+        }
+      } catch (pe) {
+        const pEnd = Date.now();
+        const pTime = pEnd - pStart;
+        proxyAttempts.push({ proxy: proxyBase, error: pe.message, time: pTime });
+        proxyLastError = pe;
+        console.warn(`Proxy ${proxyBase} failed: ${pe.message}`);
+      }
+    }
+
+    // Si acá tampoco, devolvemos el último error con los diagnósticos completos
+    const combinedDiagnostics = {
+      attempts: attemptsDiagnostics,
+      proxyAttempts,
     };
+    throw proxyLastError || lastError || new Error('All attempts and proxies failed');
   } catch (error) {
     clearTimeout(timeoutId);
 
