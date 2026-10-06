@@ -16,7 +16,7 @@ Uso rápido:
 
 Dónde ver documentación y configuración:
 
-- Documentación técnica y opciones de despliegue: carpeta `docs/` (ver `docs/readme.md`).
+- Documentación técnica y opciones de despliegue: en [documentacion-central](https://github.com/FABIOR1981/documentacion-central/tree/main/monitor-status/documentacion) (ver `readme.md`).
 - Funciones serverless relacionadas: `netlify/functions/`.
 
 Contribuir:
