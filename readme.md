@@ -16,7 +16,8 @@ Uso rápido:
 
 Dónde ver documentación y configuración:
 
-- Documentación técnica y opciones de despliegue: carpeta `docs/` (ver `docs/readme.md`).
+- Manual de usuario (uso de la pantalla, sin datos técnicos): [MANUAL_USUARIO.md](https://github.com/FABIOR1981/documentacion-central/blob/main/monitor-status/documentacion/MANUAL_USUARIO.md) ([PDF](https://github.com/FABIOR1981/documentacion-central/blob/main/monitor-status/documentacion/MANUAL_USUARIO.pdf)).
+- Documentación técnica y opciones de despliegue: en [documentacion-central](https://github.com/FABIOR1981/documentacion-central/tree/main/monitor-status/documentacion) (ver `readme.md`).
 - Funciones serverless relacionadas: `netlify/functions/`.
 
 Contribuir:
