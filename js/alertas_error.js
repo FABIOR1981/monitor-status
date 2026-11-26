@@ -80,7 +80,7 @@
     btnCopiar.onclick = async () => {
       if (!(await copiar(mensaje))) return;
       btnCopiar.textContent = labelCopiado;
-      setTimeout(() => (btnCopiar.textContent = labelCopiar), ALERTAS_COPY_LABEL_RESET_MS);
+      setTimeout(() => (btnCopiar.textContent = labelCopiar), ALERTAS_COPIADO_MS);
     };
 
     const btnCerrar = document.createElement('button');
@@ -91,7 +91,7 @@
 
     notif.append(texto, btnCopiar, btnCerrar);
     cont.appendChild(notif);
-    setTimeout(() => notif.remove(), ALERTAS_AUTO_CLOSE_MS);
+    setTimeout(() => notif.remove(), ALERTAS_CIERRE_MS);
   }
 
   window.limpiarErrorSitio = function (nombre) {

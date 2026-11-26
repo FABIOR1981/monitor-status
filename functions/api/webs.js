@@ -3,20 +3,20 @@
 
 const KEY = 'webs';
 
-const HEADERS = {
+const CABECERAS = {
   'Access-Control-Allow-Origin': '*',
   'Content-Type': 'application/json',
   'Cache-Control': 'no-store',
 };
 
 const json = (body, status = 200, extra = {}) =>
-  new Response(JSON.stringify(body), { status, headers: { ...HEADERS, ...extra } });
+  new Response(JSON.stringify(body), { status, headers: { ...CABECERAS, ...extra } });
 
 // Clave provisoria: la fecha de hoy en Uruguay (AAAAMMDD)
 export const claveDelDia = (ahora = Date.now()) =>
   new Date(ahora - 3 * 3600 * 1000).toISOString().slice(0, 10).replaceAll('-', '');
 
-export function checkLista(data) {
+export function validarLista(data) {
   if (!Array.isArray(data)) return 'Los datos deben ser una lista';
   if (data.length > 200) return 'Demasiados sitios (máximo 200)';
   for (const s of data) {
@@ -52,7 +52,7 @@ export async function leerLista(request, env) {
 export async function onRequestGet({ request, env }) {
   const lista = await leerLista(request, env);
   if (!lista) return json({ error: 'No hay lista de sitios disponible' }, 404);
-  return new Response(lista.texto, { headers: { ...HEADERS, 'X-Origen-Lista': lista.origen } });
+  return new Response(lista.texto, { headers: { ...CABECERAS, 'X-Origen-Lista': lista.origen } });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -68,7 +68,7 @@ export async function onRequestPost({ request, env }) {
   if (!body) return json({ error: 'El cuerpo debe ser JSON' }, 400);
   if (body.verificar) return json({ success: true });
 
-  const problema = checkLista(body.data);
+  const problema = validarLista(body.data);
   if (problema) return json({ error: problema }, 400);
 
   await env.WEBS.put(KEY, JSON.stringify(body.data, null, 2));

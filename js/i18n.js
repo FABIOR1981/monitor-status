@@ -1,8 +1,8 @@
-// El idioma sale de ?lang= (o DEFAULT_LANG) y se carga como un <script> que define TEXTOS_ACTUAL.
+// El idioma sale de ?lang= (o IDIOMA_POR_DEFECTO) y se carga como un <script> que define TEXTOS_ACTUAL.
 
 function idiomaActual() {
   const lang = new URLSearchParams(window.location.search).get('lang');
-  return I18N_FILES[lang] ? lang : DEFAULT_LANG;
+  return I18N_FILES[lang] ? lang : IDIOMA_POR_DEFECTO;
 }
 
 function cargarIdiomaScript(idioma) {
@@ -27,8 +27,8 @@ async function cargarIdioma() {
   try {
     await cargarIdiomaScript(pedido);
   } catch (err) {
-    if (pedido === DEFAULT_LANG) throw err;
-    console.warn(`Falló el idioma ${pedido}, se usa ${DEFAULT_LANG}.`, err);
-    await cargarIdiomaScript(DEFAULT_LANG);
+    if (pedido === IDIOMA_POR_DEFECTO) throw err;
+    console.warn(`Falló el idioma ${pedido}, se usa ${IDIOMA_POR_DEFECTO}.`, err);
+    await cargarIdiomaScript(IDIOMA_POR_DEFECTO);
   }
 }

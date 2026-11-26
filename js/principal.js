@@ -1,7 +1,7 @@
 // Orquesta el tablero: idioma, tema, ciclo de medición y dibujo.
 // Decidir caído/no caído: medicion.js. Guardado: historial.js. Vista: estado.js y pizarron.js.
 
-let websitesData = [];
+let sitios = [];
 let temporizadorMonitoreo = null;
 let ticker = null;
 
@@ -90,22 +90,22 @@ async function medirTodos() {
   try {
     // La lista se vuelve a leer en cada ciclo: si se edita en el ABM, se toma sola
     try {
-      websitesData = await cargarLista();
+      sitios = await cargarLista();
     } catch (e) {
       console.error('Error al cargar la lista de sitios.', e);
-      if (websitesData.length === 0) {
+      if (sitios.length === 0) {
         mostrarAdvertenciaGlobal(true, window.TEXTOS_ACTUAL.pizarron.error_lista);
         return;
       }
     }
 
-    const midiendo = new Set(websitesData.map((w) => w.url));
-    dibujarTablero(websitesData, midiendo);
+    const midiendo = new Set(sitios.map((w) => w.url));
+    dibujarTablero(sitios, midiendo);
     actualizarFrescura();
 
     // allSettled: si un sitio revienta, los demás se miden igual
     const salidas = await Promise.allSettled(
-      websitesData.map((w) => verificarEstado(w.url, w.contiene))
+      sitios.map((w) => verificarEstado(w.url, w.contiene))
     );
 
     const resultados = salidas.map((salida, i) => {
@@ -113,10 +113,10 @@ async function medirTodos() {
         salida.status === 'fulfilled'
           ? salida.value
           : { time: UMBRALES_LATENCIA.PENALIZACION_FALLO, status: ESTADO_ERROR_CONEXION };
-      return { ...res, url: websitesData[i].url, _sinProxy: !!res._sinProxy };
+      return { ...res, url: sitios[i].url, _sinProxy: !!res._sinProxy };
     });
 
-    const { esFallo, motivo } = determinarFalloGlobal(websitesData, resultados);
+    const { esFallo, motivo } = determinarFalloGlobal(sitios, resultados);
     mostrarAdvertenciaGlobal(esFallo, motivo);
 
     // Si el propio monitor se quedó sin conexión (ningún sitio pudo consultar al servidor)
@@ -130,11 +130,11 @@ async function medirTodos() {
     const ahora = Date.now();
     resultados.forEach((res, i) => {
       agregarMedicion(res.url, res, ahora);
-      avisarAlertas(websitesData[i], res);
+      avisarAlertas(sitios[i], res);
     });
   } finally {
     medicionEnCurso = false;
-    if (websitesData.length) dibujarTablero(websitesData);
+    if (sitios.length) dibujarTablero(sitios);
     actualizarFrescura();
     programarSiguiente(FRECUENCIA_MONITOREO_MS);
   }
@@ -147,7 +147,7 @@ function duracionActual() {
   } catch {
     // sin almacenamiento
   }
-  return guardado && DURACION_OPCIONES[guardado] ? guardado : DURACION_DEFAULT;
+  return guardado && DURACION_OPCIONES[guardado] ? guardado : DURACION_POR_DEFECTO;
 }
 
 function iniciarSelectorDuracion() {
@@ -176,13 +176,13 @@ function iniciarSelectorDuracion() {
     // Es una ventana móvil: si se achica, se descarta lo más viejo; si se agranda, se llena sola
     ajustarVentana(DURACION_OPCIONES[nueva].mediciones);
     guardarHistorial();
-    if (websitesData.length) dibujarTablero(websitesData);
+    if (sitios.length) dibujarTablero(sitios);
   });
 }
 
 function reiniciarMonitoreo() {
   borrarHistorial();
-  if (websitesData.length) dibujarTablero(websitesData);
+  if (sitios.length) dibujarTablero(sitios);
   actualizarFrescura();
   medirTodos();
 }
@@ -252,8 +252,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Muestra de inmediato lo guardado (sin esperar a que termine una medición)
   try {
-    websitesData = await cargarLista();
-    dibujarTablero(websitesData);
+    sitios = await cargarLista();
+    dibujarTablero(sitios);
   } catch (e) {
     console.error('Error al cargar la lista de sitios.', e);
     mostrarAdvertenciaGlobal(true, window.TEXTOS_ACTUAL.pizarron.error_lista);
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   ticker = setInterval(actualizarFrescura, 1000);
   // Cada medio minuto se redibuja para que el "hace N min" de cada mosaico no se quede viejo
   setInterval(() => {
-    if (!medicionEnCurso && websitesData.length) dibujarTablero(websitesData);
+    if (!medicionEnCurso && sitios.length) dibujarTablero(sitios);
   }, 30000);
   actualizarFrescura();
 
@@ -281,6 +281,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (document.visibilityState !== 'visible' || medicionEnCurso) return;
     const u = ultimaMedicionGlobal();
     if (u === null || Date.now() - u >= FRECUENCIA_MONITOREO_MS) medirTodos();
-    else dibujarTablero(websitesData);
+    else dibujarTablero(sitios);
   });
 });

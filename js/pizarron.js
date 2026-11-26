@@ -280,7 +280,7 @@ function dibujarTablero(webs, midiendo = new Set()) {
   const vistas = ordenados.map((web) =>
     construirVista(
       web,
-      historialStatus[web.url] || [],
+      historial[web.url] || [],
       ultimoResultado[web.url] || null,
       ahora,
       { cantidadBarras, frecuenciaMs: FRECUENCIA_MONITOREO_MS }
@@ -377,7 +377,7 @@ function mostrarAdvertenciaGlobal(esFalloCritico, motivoFallo = '') {
 function aplicarTema(tema) {
   const tx = textosPz();
   const enlace = document.getElementById('estilo-tema');
-  if (TEMA_FILES[tema]) enlace.href = TEMA_FILES[tema];
+  if (TEMA_ARCHIVOS[tema]) enlace.href = TEMA_ARCHIVOS[tema];
 
   const oscuro = TEMAS_OSCUROS.includes(tema);
   const boton = document.getElementById('boton-tema');
@@ -400,7 +400,7 @@ function aplicarTema(tema) {
 
 function alternarTema() {
   const actual = document.getElementById('boton-tema').dataset.tema;
-  const nuevo = TEMA_TOGGLE_PAIRS[actual] || TEMA_DEFAULT;
+  const nuevo = TEMA_PAREJAS[actual] || TEMA_POR_DEFECTO;
   document.getElementById('boton-tema').dataset.tema = nuevo;
   recordarTema(nuevo);
   const params = new URLSearchParams(window.location.search);

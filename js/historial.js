@@ -3,7 +3,7 @@
 // cada vez que se abre el tablero empieza de cero.
 // Entrada: { t: latencia ms, s: status, ts: momento, o: origen, nc: no concluyente, e: error }
 
-let historialStatus = {};
+let historial = {};
 let ultimoResultado = {}; // detalle de la última medición por sitio, para el panel de detalle
 let maxHistorialActual = MAX_HISTORIAL_ENTRIES;
 
@@ -31,10 +31,10 @@ function escribirAlmacen(clave, datos) {
 
 function cargarHistorial() {
   const guardado = leerAlmacen(CLAVE_HISTORIAL);
-  historialStatus = {};
+  historial = {};
   for (const url of Object.keys(guardado)) {
     if (Array.isArray(guardado[url])) {
-      historialStatus[url] = guardado[url].filter(
+      historial[url] = guardado[url].filter(
         (e) => e && Number.isFinite(e.t) && Number.isFinite(e.ts)
       );
     }
@@ -43,20 +43,20 @@ function cargarHistorial() {
 }
 
 function guardarHistorial() {
-  escribirAlmacen(CLAVE_HISTORIAL, historialStatus);
+  escribirAlmacen(CLAVE_HISTORIAL, historial);
   escribirAlmacen(CLAVE_ULTIMO, ultimoResultado);
 }
 
 function borrarHistorial() {
-  historialStatus = {};
+  historial = {};
   ultimoResultado = {};
   guardarHistorial();
 }
 
 function ajustarVentana(maximo) {
   maxHistorialActual = maximo;
-  for (const url of Object.keys(historialStatus)) {
-    historialStatus[url] = historialStatus[url].slice(-maximo);
+  for (const url of Object.keys(historial)) {
+    historial[url] = historial[url].slice(-maximo);
   }
 }
 
@@ -70,7 +70,7 @@ function agregarMedicion(url, resultado, ahora = Date.now()) {
   if (resultado.noConcluyente) entrada.nc = true;
   if (esFalloEntrada(entrada)) entrada.e = String(resultado.error || '').slice(0, 140);
 
-  historialStatus[url] = [...(historialStatus[url] || []), entrada].slice(-maxHistorialActual);
+  historial[url] = [...(historial[url] || []), entrada].slice(-maxHistorialActual);
 
   ultimoResultado[url] = {
     error: resultado.error || null,
@@ -85,7 +85,7 @@ function agregarMedicion(url, resultado, ahora = Date.now()) {
 
 function ultimaMedicionGlobal() {
   let ultima = null;
-  for (const lista of Object.values(historialStatus)) {
+  for (const lista of Object.values(historial)) {
     const ts = lista.at(-1)?.ts;
     if (ts !== undefined && (ultima === null || ts > ultima)) ultima = ts;
   }

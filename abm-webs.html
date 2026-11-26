@@ -13,7 +13,7 @@
     <link id="estilo-principal" rel="stylesheet" href="css/tema_oscuro.css" />
     <script>
       document.getElementById('estilo-principal').href =
-        TEMA_FILES[obtenerTemaInicial()];
+        TEMA_ARCHIVOS[obtenerTemaInicial()];
     </script>
     <link rel="stylesheet" href="css/comun.css" />
     <link rel="stylesheet" href="css/abm.css" />
@@ -129,7 +129,7 @@
 
         // Botón: solo si el tema tiene su pareja claro/oscuro
         const boton = document.getElementById('boton-tema');
-        const destino = TEMA_TOGGLE_PAIRS[tema];
+        const destino = TEMA_PAREJAS[tema];
         if (!destino) {
           boton.style.display = 'none';
           return;
@@ -139,9 +139,9 @@
       }
 
       function cambiarTema() {
-        const destino = TEMA_TOGGLE_PAIRS[obtenerTemaInicial()];
-        if (!destino || !TEMA_FILES[destino]) return;
-        document.getElementById('estilo-principal').href = TEMA_FILES[destino];
+        const destino = TEMA_PAREJAS[obtenerTemaInicial()];
+        if (!destino || !TEMA_ARCHIVOS[destino]) return;
+        document.getElementById('estilo-principal').href = TEMA_ARCHIVOS[destino];
         const params = new URLSearchParams(window.location.search);
         params.set('tema', destino);
         recordarTema(destino);

@@ -6,7 +6,7 @@
 
 import { leerLista } from './webs.js';
 
-const HEADERS = {
+const CABECERAS = {
   'Access-Control-Allow-Origin': '*',
   'Content-Type': 'application/json',
   'Cache-Control': 'no-store',
@@ -15,10 +15,10 @@ const HEADERS = {
 const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
 
-const MAX_BYTES = 256 * 1024;
+const LIMITE_BYTES = 256 * 1024;
 
 const json = (body, status = 200) =>
-  new Response(JSON.stringify(body), { status, headers: HEADERS });
+  new Response(JSON.stringify(body), { status, headers: CABECERAS });
 
 const norm = (txt) =>
   String(txt)
@@ -27,7 +27,7 @@ const norm = (txt) =>
     .toLowerCase();
 
 // true/false, o null si se cortó la lectura antes de poder concluir
-export async function bodyHas(body, texto) {
+export async function contieneTexto(body, texto) {
   if (!body) return false;
   const buscado = norm(texto);
   const reader = body.getReader();
@@ -38,7 +38,7 @@ export async function bodyHas(body, texto) {
   let found = false;
 
   try {
-    while (total < MAX_BYTES) {
+    while (total < LIMITE_BYTES) {
       const { done, value } = await reader.read();
       if (done) break;
       chunks.push(value);
@@ -106,7 +106,7 @@ export async function onRequestGet({ request, env }) {
 
     let contenidoOk = null;
     if (contiene && ok) {
-      contenidoOk = await bodyHas(res.body, contiene);
+      contenidoOk = await contieneTexto(res.body, contiene);
     } else {
       await res.body?.cancel().catch(() => {});
     }

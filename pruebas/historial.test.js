@@ -11,7 +11,7 @@ test('la ventana es móvil: al llenarse se descarta lo más viejo y se sigue mid
   const c = nuevo();
   c.ajustarVentana(3);
   for (let i = 1; i <= 5; i++) c.agregarMedicion('u', ok(i * 10), 1000 + i);
-  const guardadas = leer(c, 'historialStatus')['u'];
+  const guardadas = leer(c, 'historial')['u'];
   assert.equal(guardadas.length, 3);
   assert.deepEqual(plano(guardadas.map((e) => e.t)), [30, 40, 50]);
 });
@@ -21,7 +21,7 @@ test('achicar la ventana recorta el historial existente', () => {
   c.ajustarVentana(10);
   for (let i = 1; i <= 6; i++) c.agregarMedicion('u', ok(i), 1000 + i);
   c.ajustarVentana(2);
-  assert.equal(leer(c, 'historialStatus')['u'].length, 2);
+  assert.equal(leer(c, 'historial')['u'].length, 2);
 });
 
 test('el historial sobrevive a una recarga (se guarda en el navegador)', () => {
@@ -32,24 +32,24 @@ test('el historial sobrevive a una recarga (se guarda en el navegador)', () => {
   const c2 = nuevo();
   c2.window.sessionStorage.setItem('monitorStatusHistorial2', crudo);
   c2.cargarHistorial();
-  assert.equal(leer(c2, 'historialStatus')['u'][0].t, 77);
+  assert.equal(leer(c2, 'historial')['u'][0].t, 77);
 });
 
 test('datos guardados dañados no rompen la carga', () => {
   const c = nuevo();
   c.window.sessionStorage.setItem('monitorStatusHistorial2', '{no es json');
   c.cargarHistorial();
-  assert.deepEqual(plano(Object.keys(leer(c, 'historialStatus'))), []);
+  assert.deepEqual(plano(Object.keys(leer(c, 'historial'))), []);
   c.window.sessionStorage.setItem('monitorStatusHistorial2', JSON.stringify({ u: [null, { t: 'x' }, { t: 5, ts: 1, s: 200 }] }));
   c.cargarHistorial();
-  assert.equal(leer(c, 'historialStatus')['u'].length, 1);
+  assert.equal(leer(c, 'historial')['u'].length, 1);
 });
 
 test('solo las fallas guardan el texto del error, recortado', () => {
   const c = nuevo();
   c.agregarMedicion('u', ok(), 1);
   c.agregarMedicion('u', { ...falla, error: 'x'.repeat(500) }, 2);
-  const [bien, mal] = leer(c, 'historialStatus')['u'];
+  const [bien, mal] = leer(c, 'historial')['u'];
   assert.equal(bien.e, undefined);
   assert.equal(mal.e.length, 140);
 });
@@ -84,5 +84,5 @@ test('ultimaMedicionGlobal devuelve la más reciente de todos los sitios', () =>
 test('se marca el resultado no concluyente', () => {
   const c = nuevo();
   c.agregarMedicion('u', { ...ok(), _source: 'servidor', noConcluyente: true }, 1);
-  assert.equal(leer(c, 'historialStatus')['u'][0].nc, true);
+  assert.equal(leer(c, 'historial')['u'][0].nc, true);
 });

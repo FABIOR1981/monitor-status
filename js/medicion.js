@@ -60,7 +60,7 @@ async function medirDesdeNavegador(url) {
 async function consultarServidor(url, contiene) {
   const extra = contiene ? `&contiene=${encodeURIComponent(contiene)}` : '';
   try {
-    const res = await fetch(`${PROXY_ENDPOINT}?url=${encodeURIComponent(url)}${extra}`);
+    const res = await fetch(`${RUTA_PROXY}?url=${encodeURIComponent(url)}${extra}`);
     if (!res.ok) return null;
     const data = await res.json();
     const status = Number(data?.status);
@@ -82,7 +82,7 @@ async function consultarServidor(url, contiene) {
 const esOk = (status) => status >= 200 && status < 400;
 
 // Respuesta de la aplicación, no caída de infraestructura (401/403/429 = login o bloqueo a bots)
-const servidorLlego = (s) => !!s && (esOk(s.status) || STATUS_BLOQUEO_ALCANZABLE.includes(s.status));
+const servidorLlego = (s) => !!s && (esOk(s.status) || CODIGOS_BLOQUEO.includes(s.status));
 
 async function medirUnaVez(url, contiene) {
   const [sonda, servidor] = await Promise.all([

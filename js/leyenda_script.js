@@ -9,7 +9,7 @@ function crear(tag, clase, texto) {
 
 function aplicarTemaLeyenda(tema) {
   const tx = window.TEXTOS_ACTUAL.pizarron;
-  document.getElementById('estilo-tema').href = TEMA_FILES[tema];
+  document.getElementById('estilo-tema').href = TEMA_ARCHIVOS[tema];
   const oscuro = TEMAS_OSCUROS.includes(tema);
   const boton = document.getElementById('boton-tema');
   boton.dataset.tema = tema;
@@ -22,7 +22,7 @@ function aplicarTemaLeyenda(tema) {
 
 function alternarTemaLeyenda() {
   const actual = document.getElementById('boton-tema').dataset.tema;
-  const nuevo = TEMA_TOGGLE_PAIRS[actual] || TEMA_DEFAULT;
+  const nuevo = TEMA_PAREJAS[actual] || TEMA_POR_DEFECTO;
   recordarTema(nuevo);
   const params = new URLSearchParams(window.location.search);
   params.set('tema', nuevo);

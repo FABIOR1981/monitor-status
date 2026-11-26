@@ -13,7 +13,7 @@ const UMBRALES_LATENCIA = {
 // aceptando para no romper enlaces guardados.
 const TEMA_CLARO = 'claro';
 const TEMA_OSCURO = 'oscuro';
-const TEMA_DEFAULT = TEMA_OSCURO;
+const TEMA_POR_DEFECTO = TEMA_OSCURO;
 
 const TEMAS_ANTIGUOS = {
   pro: TEMA_OSCURO,
@@ -23,20 +23,20 @@ const TEMAS_ANTIGUOS = {
   def: TEMA_CLARO,
 };
 
-const TEMA_FILES = {
+const TEMA_ARCHIVOS = {
   [TEMA_CLARO]: 'css/tema_claro.css',
   [TEMA_OSCURO]: 'css/tema_oscuro.css',
 };
 
 const TEMAS_OSCUROS = [TEMA_OSCURO];
 
-const TEMA_TOGGLE_PAIRS = {
+const TEMA_PAREJAS = {
   [TEMA_CLARO]: TEMA_OSCURO,
   [TEMA_OSCURO]: TEMA_CLARO,
 };
 
 function normalizarTema(nombre) {
-  return TEMA_FILES[nombre] ? nombre : TEMAS_ANTIGUOS[nombre] || null;
+  return TEMA_ARCHIVOS[nombre] ? nombre : TEMAS_ANTIGUOS[nombre] || null;
 }
 
 // Orden: ?tema= de la URL, último elegido en este navegador, oscuro.
@@ -50,7 +50,7 @@ function obtenerTemaInicial() {
   } catch {
     // se usa el default
   }
-  return TEMA_DEFAULT;
+  return TEMA_POR_DEFECTO;
 }
 
 function recordarTema(tema) {
@@ -63,13 +63,13 @@ function recordarTema(tema) {
 
 const ESTADO_ERROR_CONEXION = 0;
 
-const PROXY_ENDPOINT = '/api/check-status';
+const RUTA_PROXY = '/api/check-status';
 const FRECUENCIA_MONITOREO_MS = 5 * 60 * 1000;
 
 const SONDA_TIMEOUT_MS = 8000;
 
 // Si el navegador llega al sitio, estos códigos no son caída: son login o bloqueo a bots
-const STATUS_BLOQUEO_ALCANZABLE = [401, 403, 429];
+const CODIGOS_BLOQUEO = [401, 403, 429];
 
 // Una caída se repite una vez tras esta espera y solo se marca si vuelve a fallar
 const CONFIRMACION_ESPERA_MS = 3000;
@@ -79,17 +79,17 @@ const CONFIRMACION_ESPERA_MS = 3000;
 const MUESTRAS_NAVEGADOR = 3;
 const MUESTRAS_LENTO_MS = 3000;
 
-const WEBSITES_FILE = 'data/webs.json';
-const LISTA_ENDPOINT = '/api/webs';
+const ARCHIVO_SITIOS = 'data/webs.json';
+const RUTA_LISTA = '/api/webs';
 
 // Lista guardada en KV; si /api/webs no responde (ej. en local) se usa el archivo
 async function leerListaSitios() {
-  const guardada = await fetch(LISTA_ENDPOINT, { cache: 'no-store' })
+  const guardada = await fetch(RUTA_LISTA, { cache: 'no-store' })
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
   if (Array.isArray(guardada)) return guardada;
 
-  const res = await fetch(WEBSITES_FILE, { cache: 'no-store' });
+  const res = await fetch(ARCHIVO_SITIOS, { cache: 'no-store' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const lista = await res.json();
   if (!Array.isArray(lista)) throw new Error('webs.json no es una lista');
@@ -107,14 +107,14 @@ for (let horas = 1; horas <= 9; horas++) {
   };
 }
 
-const DURACION_DEFAULT = '2h';
-const MAX_HISTORIAL_ENTRIES = DURACION_OPCIONES[DURACION_DEFAULT].mediciones;
+const DURACION_POR_DEFECTO = '2h';
+const MAX_HISTORIAL_ENTRIES = DURACION_OPCIONES[DURACION_POR_DEFECTO].mediciones;
 
 const I18N_FILES = {
   es: 'lang/i18n_es.js',
   en: 'lang/i18n_en.js',
 };
-const DEFAULT_LANG = 'es';
+const IDIOMA_POR_DEFECTO = 'es';
 
 // Fallo global: 80% o más de los críticos caídos o con más de 9 s
 const GRUPO_CRITICO_NOMBRE = 'CRITICO';
@@ -122,8 +122,8 @@ const GRUPO_REFERENCIA_NOMBRE = 'REFERENCIA'; // ej. Google: va al final de OTRO
 const UMBRAL_FALLO_GLOBAL_MS = 9000;
 const PORCENTAJE_FALLO_GLOBAL = 0.8;
 
-const ALERTAS_AUTO_CLOSE_MS = 30000;
-const ALERTAS_COPY_LABEL_RESET_MS = 1500;
+const ALERTAS_CIERRE_MS = 30000;
+const ALERTAS_COPIADO_MS = 1500;
 
 // Centros de datos de Cloudflare (código IATA) que se muestran con ciudad
 const CENTROS_DATOS = {
