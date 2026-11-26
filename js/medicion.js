@@ -71,6 +71,7 @@ async function consultarServidor(url, contiene) {
       error: data?.error ?? null,
       tlsError: data?.tlsError ?? null,
       contenidoOk: data?.contenidoOk ?? null,
+      punto: data?.punto ?? null,
     };
   } catch (err) {
     console.error(`No se pudo consultar el servidor para ${url}:`, err);
@@ -91,6 +92,7 @@ async function medirUnaVez(url, contiene) {
   const resultado = decidirEstado(sonda, servidor, contiene);
   // distingue "el monitor perdió el servidor" de una caída real del sitio
   resultado._sinProxy = !servidor;
+  resultado.punto = servidor?.punto || null;
   return resultado;
 }
 

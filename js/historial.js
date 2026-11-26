@@ -76,6 +76,7 @@ function agregarMedicion(url, resultado, ahora = Date.now()) {
     error: resultado.error || null,
     diagnostics: resultado.diagnostics || null,
     transitoria: !!resultado.transitoria,
+    punto: resultado.punto || null,
     ts: ahora,
   };
   guardarHistorial();

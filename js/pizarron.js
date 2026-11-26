@@ -188,7 +188,7 @@ function crearMosaico(vista, midiendo) {
       const origen = crear(
         'span',
         `pz-origen-${vista.origen}`,
-        ` · ${tx[`origen_${vista.origen}`]}`
+        ` · ${tx[`origen_${vista.origen}`]}${vista.origen === 'servidor' && vista.punto ? ` · ${vista.punto}` : ''}`
       );
       origen.title = tx[`origen_${vista.origen}_tip`];
       fila.appendChild(origen);

@@ -87,6 +87,7 @@ function construirVista(web, entradas, ultimo, ahora, opciones) {
     unidad: latencia.unidad,
     nivel: estado === 'ok' || estado === 'lento' ? nivelLatencia(ultima.t) : null,
     origen: ultima ? ultima.o : null,
+    punto: ultimo ? ultimo.punto : null,
     haceMs: ultima ? Math.max(0, ahora - ultima.ts) : null,
     barras: construirBarras(entradas, ahora, cantidadBarras, frecuenciaMs),
     promedio: resumen.promedio,
