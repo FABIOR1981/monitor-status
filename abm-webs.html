@@ -15,6 +15,7 @@
       document.getElementById('estilo-principal').href =
         TEMA_FILES[obtenerTemaInicial()];
     </script>
+    <link rel="stylesheet" href="css/comun.css" />
     <link rel="stylesheet" href="css/abm.css" />
   </head>
   <body>
@@ -168,10 +169,10 @@
 
       function guardarEnLocalStorage() {
         localStorage.setItem('webs_abm', JSON.stringify(sitios));
-        actualizarAvisoCambios();
+        avisoCambios();
       }
 
-      function actualizarAvisoCambios() {
+      function avisoCambios() {
         const hay = localStorage.getItem('webs_abm') !== null;
         document
           .getElementById('barra-guardado')
@@ -184,7 +185,7 @@
         localStorage.removeItem('webs_abm');
         cancelarEdicion();
         cargarDatos();
-        actualizarAvisoCambios();
+        avisoCambios();
       }
 
       function cargarDesdeLocalStorage() {
@@ -195,7 +196,7 @@
         } else {
           cargarDatos();
         }
-        actualizarAvisoCambios();
+        avisoCambios();
       }
 
       // Dibuja los sitios en el mismo orden que el tablero: críticos, otros y referencia al final
@@ -376,7 +377,7 @@
             estadoDiv.innerHTML = `<span class="ok">✓ Última actualización: ${new Date().toLocaleString()}</span>`;
 
             localStorage.removeItem('webs_abm');
-            actualizarAvisoCambios();
+            avisoCambios();
           } else {
             throw new Error(
               result.error ||

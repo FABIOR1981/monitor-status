@@ -1,6 +1,6 @@
 // El idioma sale de ?lang= (o DEFAULT_LANG) y se carga como un <script> que define TEXTOS_ACTUAL.
 
-function obtenerIdiomaSeleccionado() {
+function idiomaActual() {
   const lang = new URLSearchParams(window.location.search).get('lang');
   return I18N_FILES[lang] ? lang : DEFAULT_LANG;
 }
@@ -23,7 +23,7 @@ function cargarIdiomaScript(idioma) {
 
 // Si el idioma pedido falla se prueba con el default
 async function cargarIdioma() {
-  const pedido = obtenerIdiomaSeleccionado();
+  const pedido = idiomaActual();
   try {
     await cargarIdiomaScript(pedido);
   } catch (err) {

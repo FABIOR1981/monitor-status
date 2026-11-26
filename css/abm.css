@@ -1,4 +1,4 @@
-/* Panel de administración: mismo estilo que el pizarrón. Los colores vienen de css/tema_claro.css o tema_oscuro.css */
+/* ABM. Los colores salen de tema_claro.css / tema_oscuro.css */
 * {
   box-sizing: border-box;
 }
@@ -308,27 +308,6 @@ body {
 }
 #estado-guardado .mal {
   color: var(--caido);
-}
-
-/* Botón de cambio de tema (igual al del tablero) */
-.boton-tema {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 45px;
-  height: 45px;
-  padding: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4em;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  background: var(--container-bg);
-  color: inherit;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
 }
 
 @media (max-width: 720px) {

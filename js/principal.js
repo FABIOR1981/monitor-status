@@ -140,7 +140,7 @@ async function medirTodos() {
   }
 }
 
-function obtenerDuracionSeleccionada() {
+function duracionActual() {
   let guardado = null;
   try {
     guardado = localStorage.getItem('duracionMonitoreo');
@@ -150,7 +150,7 @@ function obtenerDuracionSeleccionada() {
   return guardado && DURACION_OPCIONES[guardado] ? guardado : DURACION_DEFAULT;
 }
 
-function inicializarSelectorDuracion() {
+function iniciarSelectorDuracion() {
   const g = window.TEXTOS_ACTUAL.general;
   const selector = document.getElementById('duracion-selector');
   selector.replaceChildren();
@@ -162,7 +162,7 @@ function inicializarSelectorDuracion() {
     selector.appendChild(opcion);
   });
 
-  const elegida = obtenerDuracionSeleccionada();
+  const elegida = duracionActual();
   selector.value = elegida;
   ajustarVentana(DURACION_OPCIONES[elegida].mediciones);
 
@@ -187,7 +187,7 @@ function reiniciarMonitoreo() {
   medirTodos();
 }
 
-function alternarPantallaCompleta() {
+function pantallaCompleta() {
   if (document.fullscreenElement) {
     document.exitFullscreen();
   } else if (document.documentElement.requestFullscreen) {
@@ -195,11 +195,11 @@ function alternarPantallaCompleta() {
   }
 }
 
-function escribirTextosEstaticos() {
+function pintarTextos() {
   const tx = window.TEXTOS_ACTUAL.pizarron;
   const g = window.TEXTOS_ACTUAL.general;
   document.title = tx.titulo;
-  document.documentElement.lang = obtenerIdiomaSeleccionado();
+  document.documentElement.lang = idiomaActual();
   const poner = (id, texto) => {
     const nodo = document.getElementById(id);
     if (nodo) nodo.textContent = texto;
@@ -236,14 +236,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  escribirTextosEstaticos();
+  pintarTextos();
   aplicarTema(tema);
-  inicializarSelectorDuracion();
+  iniciarSelectorDuracion();
 
   document.getElementById('boton-tema').addEventListener('click', alternarTema);
   document.getElementById('btn-medir').addEventListener('click', () => medirTodos());
   document.getElementById('btn-reiniciar').addEventListener('click', reiniciarMonitoreo);
-  document.getElementById('btn-pantalla').addEventListener('click', alternarPantallaCompleta);
+  document.getElementById('btn-pantalla').addEventListener('click', pantallaCompleta);
   document.addEventListener('fullscreenchange', () => {
     document
       .getElementById('pizarron')

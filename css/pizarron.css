@@ -1,4 +1,4 @@
-/* Pizarrón: tablero de mosaicos. Los colores vienen de css/tema_claro.css o tema_oscuro.css */
+/* Tablero. Los colores salen de tema_claro.css / tema_oscuro.css */
 * {
   box-sizing: border-box;
 }
@@ -21,7 +21,7 @@ a {
   gap: 16px;
 }
 
-/* ---------- Cabecera ---------- */
+/* Cabecera */
 .pz-cabecera {
   display: flex;
   flex-wrap: wrap;
@@ -90,7 +90,7 @@ a {
   color: var(--suave);
 }
 
-/* ---------- Resumen ---------- */
+/* Resumen */
 .pz-resumen {
   background: var(--container-bg);
   border: 1px solid var(--borde);
@@ -150,7 +150,7 @@ a {
   border-radius: 4px;
 }
 
-/* ---------- Secciones y mosaicos ---------- */
+/* Secciones y mosaicos */
 .pz-seccion {
   margin: 0 0 8px;
   font-size: 12px;
@@ -184,10 +184,6 @@ a {
 .pz-mosaico.estado-lento {
   --e: var(--lento);
   border-color: var(--lento);
-}
-.pz-mosaico.estado-sinconf {
-  --e: var(--sinconf);
-  border-color: var(--sinconf);
 }
 .pz-mosaico.estado-caido {
   --e: var(--caido);
@@ -283,9 +279,6 @@ a {
 .pz-barras .b-lento {
   --b: var(--lento);
 }
-.pz-barras .b-sinconf {
-  --b: var(--sinconf);
-}
 .pz-barras .b-caido {
   --b: var(--caido);
 }
@@ -358,7 +351,7 @@ a {
   color: var(--suave);
 }
 
-/* ---------- Pie ---------- */
+/* Pie */
 .pz-pie {
   display: flex;
   flex-wrap: wrap;
@@ -419,14 +412,14 @@ a {
   white-space: nowrap;
 }
 
-/* Pantalla ancha: la leyenda de barras a la izquierda y los botones a la derecha, en un solo renglón */
+/* Con ancho suficiente, referencias a la izquierda y botones a la derecha en un renglón */
 @media (min-width: 1280px) {
   .pz-pie,
   .pz-controles {
     flex-wrap: nowrap;
   }
   #leyenda-barras {
-    display: none; /* el texto "Cada barra es una medición:" se oculta para que entre todo */
+    display: none; /* para que entren los botones */
   }
 }
 @media (min-width: 1500px) {
@@ -435,28 +428,6 @@ a {
   }
 }
 
-/* Botón de cambio de tema (esquina) */
-.boton-tema {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 45px;
-  height: 45px;
-  padding: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4em;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  background: var(--container-bg);
-  color: inherit;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-}
-
-/* Pantalla completa: más aire y letra más grande para verlo de lejos */
 .pizarron.pantalla-completa {
   max-width: none;
 }
@@ -505,7 +476,7 @@ a {
 }
 
 
-/* Pantallas bajas (laptop con barras del navegador): algo más compacto para evitar el scroll vertical */
+/* Pantallas bajas: más compacto para no tener scroll vertical */
 @media (max-height: 720px) {
   .pizarron {
     padding: 12px 28px 10px;
@@ -576,7 +547,7 @@ a {
   }
 }
 
-/* Muy bajas: se quita el eje de horas bajo las barras y se achica un poco más */
+/* Muy bajas: sin eje de horas */
 @media (max-height: 560px) {
   .pz-eje {
     display: none;

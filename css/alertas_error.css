@@ -1,4 +1,4 @@
-/* Estilos para las notificaciones de error creadas por js/alertas_error.js */
+/* Avisos de js/alertas_error.js */
 #notificaciones-errores {
   position: fixed;
   top: 20px;
@@ -42,7 +42,6 @@
   cursor: pointer;
 }
 
-/* Asegurar que los botones sean accesibles en teclado */
 .notif-alarma button:focus {
   outline: 2px solid rgba(0, 123, 255, 0.25);
   outline-offset: 2px;

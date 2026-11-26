@@ -73,7 +73,7 @@ function crearDetalle(vista) {
     cuerpo.appendChild(crear('div', null, texto));
   }
   if (vista.origen === 'servidor' && vista.estado !== 'caido') {
-    cuerpo.appendChild(crear('div', null, tx.detalle_sinconf));
+    cuerpo.appendChild(crear('div', null, tx.detalle_servidor));
   }
 
   const datos = crear('div');

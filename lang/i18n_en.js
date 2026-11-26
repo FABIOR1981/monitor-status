@@ -214,7 +214,7 @@ TEXTOS_EN.pizarron = {
   detalle_motivo_contenido: 'The page answered but does not have the expected content.',
   detalle_motivo_sin_respuesta: 'The site did not respond.',
   detalle_motivo_http: 'The site returned code',
-  detalle_sinconf: 'Your browser could not measure this site: the value comes from the monitor server (US) and is usually slower than what you see from home.',
+  detalle_servidor: 'Your browser could not measure this site: the value comes from the monitor server (US) and is usually slower than what you see from home.',
   psi: 'Analyze on PageSpeed',
   leyenda_barras: 'Each bar is one measurement',
   clave_ok: 'operational',

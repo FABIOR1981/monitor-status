@@ -213,7 +213,7 @@ TEXTOS_ES.pizarron = {
   detalle_motivo_contenido: 'La página respondió pero no tiene el contenido esperado.',
   detalle_motivo_sin_respuesta: 'No hubo respuesta del sitio.',
   detalle_motivo_http: 'El sitio devolvió el código',
-  detalle_sinconf: 'Tu navegador no pudo medir este sitio: el dato viene del servidor del monitor y puede diferir de lo que ves desde tu casa.',
+  detalle_servidor: 'Tu navegador no pudo medir este sitio: el dato viene del servidor del monitor y puede diferir de lo que ves desde tu casa.',
   psi: 'Analizar en PageSpeed',
   leyenda_barras: 'Cada barra es una medición',
   clave_ok: 'operativo',

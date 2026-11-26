@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const textos = window.TEXTOS_ACTUAL;
   const ley = textos.leyenda;
-  document.documentElement.lang = obtenerIdiomaSeleccionado();
+  document.documentElement.lang = idiomaActual();
   document.getElementById('leyenda-titulo').textContent = ley.title_browser;
   document.getElementById('titulo-leyenda').textContent = ley.main_header;
   document.getElementById('subtitulo-leyenda').textContent = ley.subtitulo;

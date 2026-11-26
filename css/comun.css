@@ -1,0 +1,21 @@
+/* Lo que comparten el tablero, el ABM y la leyenda */
+
+.boton-tema {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4em;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--container-bg);
+  color: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
