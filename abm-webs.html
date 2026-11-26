@@ -376,17 +376,17 @@
       async function entrar(clave) {
         sessionStorage.setItem('claveAbm', clave);
         const res = await enviarLista({ verificar: true });
-        if (!res.ok) return false;
+        const detalle = await res.json().catch(() => ({}));
+        if (!res.ok) return detalle.error || `Error ${res.status}`;
         document.getElementById('clave-modal').classList.add('hidden');
         document.getElementById('abm-contenido').classList.remove('hidden');
-        return true;
+        return '';
       }
 
       document.getElementById('clave-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const input = document.getElementById('clave-input');
-        const ok = await entrar(input.value.trim());
-        document.getElementById('clave-error').textContent = ok ? '' : 'Clave incorrecta';
+        document.getElementById('clave-error').textContent = await entrar(input.value.trim());
         input.value = '';
       });
 
@@ -453,7 +453,7 @@
 
       aplicarTemaABM();
       cargarDesdeLocalStorage();
-      entrar(sessionStorage.getItem('claveAbm') || '').then((ok) => !ok && pedirClave());
+      entrar(sessionStorage.getItem('claveAbm') || '').then((error) => error && pedirClave());
     </script>
   </body>
 </html>

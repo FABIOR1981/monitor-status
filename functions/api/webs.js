@@ -54,12 +54,12 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!env.WEBS) {
-    return json({ error: 'KV no configurado', help: 'Enlazá un KV con el nombre WEBS (Settings > Bindings)' }, 501);
-  }
-
   if (request.headers.get('X-Clave') !== claveDelDia()) {
     return json({ error: 'Clave incorrecta' }, 401);
+  }
+
+  if (!env.WEBS) {
+    return json({ error: 'KV no configurado', help: 'Enlazá un KV con el nombre WEBS (Settings > Bindings)' }, 501);
   }
 
   const body = await request.json().catch(() => null);
