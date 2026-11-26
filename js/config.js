@@ -124,3 +124,33 @@ const PORCENTAJE_FALLO_GLOBAL = 0.8;
 
 const ALERTAS_AUTO_CLOSE_MS = 30000;
 const ALERTAS_COPY_LABEL_RESET_MS = 1500;
+
+// Centros de datos de Cloudflare (código IATA) que se muestran con ciudad
+const CENTROS_DATOS = {
+  EZE: 'Buenos Aires',
+  MVD: 'Montevideo',
+  SCL: 'Santiago',
+  GRU: 'São Paulo',
+  GIG: 'Río de Janeiro',
+  POA: 'Porto Alegre',
+  CWB: 'Curitiba',
+  LIM: 'Lima',
+  BOG: 'Bogotá',
+  UIO: 'Quito',
+  PTY: 'Panamá',
+  MIA: 'Miami',
+  ATL: 'Atlanta',
+  IAD: 'Washington',
+  EWR: 'Nueva York',
+  ORD: 'Chicago',
+  DFW: 'Dallas',
+  LAX: 'Los Ángeles',
+  SJC: 'San José (EE. UU.)',
+  MAD: 'Madrid',
+  LHR: 'Londres',
+  CDG: 'París',
+  FRA: 'Fráncfort',
+  AMS: 'Ámsterdam',
+};
+
+const nombreCentro = (sigla) => (CENTROS_DATOS[sigla] ? `${CENTROS_DATOS[sigla]} (${sigla})` : sigla);
