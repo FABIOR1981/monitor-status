@@ -1,0 +1,603 @@
+/* Pizarrón: tablero de mosaicos. Los colores vienen de css/tema_claro.css o tema_oscuro.css */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  min-height: 100vh;
+}
+a {
+  color: inherit;
+}
+
+.pizarron {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 14px 32px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- Cabecera ---------- */
+.pz-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-right: 64px; /* deja libre el botón de tema */
+}
+.pz-cabecera h1 {
+  margin: 0 0 2px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--header-color);
+}
+.pz-suave {
+  color: var(--suave);
+  font-size: 14px;
+  margin: 0;
+}
+.pz-frescura {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 240px;
+}
+.pz-frescura strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.pz-progreso {
+  width: 240px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--borde);
+  overflow: hidden;
+}
+.pz-progreso > div {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width 1s linear;
+}
+.pz-frescura.es-viejo strong {
+  color: var(--caido);
+}
+
+/* Aviso general (fallo global, datos viejos) */
+.pz-aviso {
+  display: none;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--caido);
+  background: color-mix(in srgb, var(--caido) 12%, var(--container-bg));
+  font-weight: 600;
+  line-height: 1.4;
+}
+.pz-aviso.visible {
+  display: block;
+}
+.pz-aviso small {
+  display: block;
+  margin-top: 4px;
+  font-weight: 400;
+  color: var(--suave);
+}
+
+/* ---------- Resumen ---------- */
+.pz-resumen {
+  background: var(--container-bg);
+  border: 1px solid var(--borde);
+  border-radius: var(--container-radius);
+  padding: 14px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pz-resumen-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+.pz-resumen-titulo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.pz-resumen-n {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ok);
+}
+.pz-resumen-n.hay-caidos {
+  color: var(--caido);
+}
+.pz-resumen-texto {
+  font-size: 20px;
+  font-weight: 600;
+}
+.pz-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.pz-chip-resumen {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--borde);
+  font-size: 13px;
+  font-weight: 600;
+}
+.pz-segmentos {
+  display: flex;
+  gap: 6px;
+}
+.pz-segmentos > span {
+  flex: 1 1 0;
+  height: 8px;
+  border-radius: 4px;
+}
+
+/* ---------- Secciones y mosaicos ---------- */
+.pz-seccion {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--suave);
+}
+.pz-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.pz-mosaico {
+  --e: var(--ok);
+  flex: 1 1 220px;
+  min-width: 0;
+  background: var(--container-bg);
+  border: 1px solid var(--borde);
+  border-radius: var(--container-radius);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.3s, opacity 0.3s;
+}
+.pz-grid--criticos .pz-mosaico {
+  flex-basis: 250px;
+  padding: 16px 18px;
+  gap: 10px;
+}
+.pz-mosaico.estado-lento {
+  --e: var(--lento);
+  border-color: var(--lento);
+}
+.pz-mosaico.estado-sinconf {
+  --e: var(--sinconf);
+  border-color: var(--sinconf);
+}
+.pz-mosaico.estado-caido {
+  --e: var(--caido);
+  border-color: var(--caido);
+  background: color-mix(in srgb, var(--caido) 8%, var(--container-bg));
+}
+.pz-mosaico.estado-sin-datos {
+  --e: var(--hueco);
+}
+.pz-mosaico.midiendo .pz-num {
+  opacity: 0.55;
+}
+
+.pz-m-cab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pz-nombre {
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.pz-nombre:hover {
+  text-decoration: underline;
+}
+.pz-grid--criticos .pz-nombre {
+  font-size: 19px;
+}
+.pz-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--e) 16%, transparent);
+  color: var(--e);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.pz-valor {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.pz-num {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+}
+.pz-grid--criticos .pz-num {
+  font-size: 44px;
+}
+.pz-unidad {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--suave);
+}
+.pz-nivel {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--suave);
+}
+
+/* Historial en barras */
+.pz-barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 24px;
+}
+.pz-grid--criticos .pz-barras {
+  height: 32px;
+  gap: 3px;
+}
+.pz-barras > span {
+  flex: 1 1 0;
+  min-width: 2px;
+  border-radius: 2px;
+  background: var(--b, var(--hueco));
+}
+.pz-barras .b-ok {
+  --b: var(--ok);
+}
+.pz-barras .b-lento {
+  --b: var(--lento);
+}
+.pz-barras .b-sinconf {
+  --b: var(--sinconf);
+}
+.pz-barras .b-caido {
+  --b: var(--caido);
+}
+.pz-barras .b-vacio {
+  --b: var(--hueco);
+}
+.pz-barras .b-hueco {
+  --b: var(--hueco);
+}
+
+.pz-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: 12px;
+  color: var(--suave);
+}
+.pz-grid--criticos .pz-meta {
+  font-size: 13px;
+}
+.pz-origen-navegador {
+  color: var(--ok);
+}
+.pz-origen-servidor {
+  color: var(--lento);
+}
+
+/* Detalle desplegable */
+.pz-detalle {
+  font-size: 12px;
+  color: var(--suave);
+}
+.pz-detalle summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  padding: 0;
+}
+.pz-detalle summary::-webkit-details-marker {
+  display: none;
+}
+.pz-detalle summary::before {
+  content: '▸ ';
+}
+.pz-detalle[open] summary::before {
+  content: '▾ ';
+}
+.pz-detalle-cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  color: var(--text);
+}
+.pz-detalle-cuerpo ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.pz-detalle-cuerpo li {
+  margin: 2px 0;
+}
+.pz-detalle-cuerpo .pz-suave {
+  font-size: 12px;
+}
+.pz-detalle-cuerpo pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font: inherit;
+  font-size: 12px;
+  color: var(--suave);
+}
+
+/* ---------- Pie ---------- */
+.pz-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+  font-size: 12px;
+  color: var(--suave);
+}
+.pz-pie-clave {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.pz-pie-clave i {
+  display: inline-block;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--b);
+}
+.pz-pie-clave i.hueco {
+  height: 4px;
+}
+.pz-controles {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.pz-controles a,
+.pz-controles button,
+.pz-controles select {
+  font: inherit;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--link-color);
+  background: transparent;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.pz-controles select {
+  color: var(--text);
+  background: var(--container-bg);
+}
+.pz-controles a:hover,
+.pz-controles button:hover {
+  border-color: var(--accent);
+}
+.pz-controles label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* Pantalla ancha: la leyenda de barras a la izquierda y los botones a la derecha, en un solo renglón */
+@media (min-width: 1280px) {
+  .pz-pie,
+  .pz-controles {
+    flex-wrap: nowrap;
+  }
+  #leyenda-barras {
+    display: none; /* el texto "Cada barra es una medición:" se oculta para que entre todo */
+  }
+}
+@media (min-width: 1500px) {
+  #leyenda-barras {
+    display: inline;
+  }
+}
+
+/* Botón de cambio de tema (esquina) */
+.boton-tema {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4em;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--container-bg);
+  color: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+/* Pantalla completa: más aire y letra más grande para verlo de lejos */
+.pizarron.pantalla-completa {
+  max-width: none;
+}
+
+@media (max-width: 640px) {
+  .pizarron {
+    padding: 16px 14px;
+  }
+  .pz-cabecera h1 {
+    font-size: 22px;
+  }
+  .pz-frescura {
+    align-items: flex-start;
+  }
+  .pz-resumen {
+    padding: 16px;
+  }
+  .pz-resumen-n {
+    font-size: 42px;
+  }
+  .pz-resumen-texto {
+    font-size: 18px;
+  }
+  .pz-controles {
+    margin-left: 0;
+  }
+  .boton-tema {
+    top: 10px;
+    right: 10px;
+  }
+}
+
+.pz-controles button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* Horas de la primera y la última barra */
+.pz-eje {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -2px;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--suave);
+}
+
+
+/* Pantallas bajas (laptop con barras del navegador): algo más compacto para evitar el scroll vertical */
+@media (max-height: 720px) {
+  .pizarron {
+    padding: 12px 28px 10px;
+    gap: 10px;
+  }
+  .pz-cabecera h1 {
+    font-size: 22px;
+    margin: 0;
+  }
+  .pz-resumen {
+    padding: 10px 18px;
+    gap: 8px;
+  }
+  .pz-resumen-n {
+    font-size: 36px;
+  }
+  .pz-resumen-texto {
+    font-size: 18px;
+  }
+  .pz-chip-resumen {
+    padding: 3px 11px;
+    font-size: 12px;
+  }
+  .pz-segmentos > span {
+    height: 7px;
+  }
+  .pz-seccion {
+    margin: 0 0 5px;
+    font-size: 11px;
+  }
+  .pz-grid {
+    gap: 10px;
+  }
+  .pz-mosaico {
+    padding: 10px 14px;
+    gap: 5px;
+  }
+  .pz-grid--criticos .pz-mosaico {
+    padding: 12px 16px;
+    gap: 6px;
+  }
+  .pz-nombre {
+    font-size: 15px;
+  }
+  .pz-grid--criticos .pz-nombre {
+    font-size: 17px;
+  }
+  .pz-num {
+    font-size: 26px;
+  }
+  .pz-grid--criticos .pz-num {
+    font-size: 36px;
+  }
+  .pz-barras {
+    height: 18px;
+  }
+  .pz-grid--criticos .pz-barras {
+    height: 24px;
+  }
+  .pz-meta,
+  .pz-grid--criticos .pz-meta,
+  .pz-detalle {
+    font-size: 12px;
+  }
+  .pz-chip {
+    padding: 3px 9px;
+    font-size: 11px;
+  }
+}
+
+/* Muy bajas: se quita el eje de horas bajo las barras y se achica un poco más */
+@media (max-height: 560px) {
+  .pz-eje {
+    display: none;
+  }
+  .pizarron {
+    padding: 8px 24px 6px;
+    gap: 7px;
+  }
+  .pz-mosaico,
+  .pz-grid--criticos .pz-mosaico {
+    padding: 7px 12px;
+    gap: 3px;
+  }
+  .pz-num {
+    font-size: 22px;
+  }
+  .pz-grid--criticos .pz-num {
+    font-size: 28px;
+  }
+  .pz-barras,
+  .pz-grid--criticos .pz-barras {
+    height: 14px;
+  }
+}

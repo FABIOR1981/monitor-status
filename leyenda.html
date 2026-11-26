@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="leyenda-titulo">Cargando Leyenda...</title>
+
+    <!-- La configuración se carga antes de pintar para elegir el tema sin parpadeo -->
+    <script src="js/config.js"></script>
+    <link id="estilo-tema" rel="stylesheet" href="css/tema_oscuro.css" />
+    <script>
+      document.getElementById('estilo-tema').href =
+        TEMA_FILES[obtenerTemaInicial()];
+    </script>
+    <link rel="stylesheet" href="css/leyenda.css" />
+    <script src="js/i18n.js"></script>
+  </head>
+  <body>
+    <button id="boton-tema" class="boton-tema" type="button"></button>
+
+    <div class="ley">
+      <header class="ley-cabecera">
+        <div>
+          <h1 id="titulo-leyenda"></h1>
+          <p id="subtitulo-leyenda" class="ley-suave"></p>
+        </div>
+        <a id="enlace-volver" class="ley-volver" href="index.html"></a>
+      </header>
+
+      <main id="contenido-leyenda"></main>
+    </div>
+
+    <script defer src="js/leyenda_script.js"></script>
+  </body>
+</html>

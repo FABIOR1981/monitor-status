@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitor de Servicios</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>"
+    />
+
+    <!-- La configuración se carga antes de pintar para elegir el tema sin parpadeo -->
+    <script src="js/config.js"></script>
+    <link id="estilo-tema" rel="stylesheet" href="css/tema_oscuro.css" />
+    <script>
+      document.getElementById('estilo-tema').href =
+        TEMA_FILES[obtenerTemaInicial()];
+    </script>
+    <link rel="stylesheet" href="css/pizarron.css" />
+  </head>
+  <body>
+    <button id="boton-tema" class="boton-tema" type="button"></button>
+
+    <main id="pizarron" class="pizarron">
+      <header class="pz-cabecera">
+        <div>
+          <h1 id="titulo-principal">Monitor de Servicios</h1>
+          <p id="subtitulo" class="pz-suave"></p>
+        </div>
+        <div id="frescura" class="pz-frescura" role="status" aria-live="off">
+          <strong id="frescura-texto"></strong>
+          <div class="pz-progreso"><div id="frescura-barra"></div></div>
+          <span id="nota-viejo" class="pz-suave" hidden></span>
+        </div>
+      </header>
+
+      <div id="aviso-global" class="pz-aviso" role="alert"></div>
+
+      <section id="resumen" class="pz-resumen" aria-live="polite"></section>
+
+      <section id="seccion-criticos">
+        <h2 id="titulo-criticos" class="pz-seccion"></h2>
+        <div id="grid-criticos" class="pz-grid pz-grid--criticos"></div>
+      </section>
+
+      <section id="seccion-otros">
+        <h2 id="titulo-otros" class="pz-seccion"></h2>
+        <div id="grid-otros" class="pz-grid"></div>
+      </section>
+
+      <footer class="pz-pie">
+        <span id="leyenda-barras"></span>
+        <span class="pz-pie-clave"><i style="--b: var(--ok)"></i><span id="clave-ok"></span></span>
+        <span class="pz-pie-clave"><i style="--b: var(--lento)"></i><span id="clave-lento"></span></span>
+        <span class="pz-pie-clave"><i style="--b: var(--caido)"></i><span id="clave-caido"></span></span>
+        <span class="pz-pie-clave"><i class="hueco" style="--b: var(--hueco)"></i><span id="clave-hueco"></span></span>
+
+        <div class="pz-controles">
+          <label>
+            <span id="duracion-label"></span>
+            <select id="duracion-selector"></select>
+          </label>
+          <button id="btn-medir" type="button">
+            ⚡ <span id="texto-btn-medir"></span>
+          </button>
+          <button id="btn-reiniciar" type="button">
+            🔄 <span id="texto-btn-reiniciar"></span>
+          </button>
+          <button id="btn-pantalla" type="button">
+            ⛶ <span id="texto-btn-pantalla"></span>
+          </button>
+          <a id="enlace-leyenda" data-destino="leyenda.html" href="leyenda.html" target="_blank" rel="noopener noreferrer"></a>
+          <a id="enlace-abm" data-destino="abm-webs.html" href="abm-webs.html"></a>
+        </div>
+      </footer>
+    </main>
+
+    <script defer src="js/i18n.js"></script>
+    <script defer src="js/medicion.js"></script>
+    <script defer src="js/historial.js"></script>
+    <script defer src="js/estado.js"></script>
+    <script defer src="js/pizarron.js"></script>
+    <script defer src="js/principal.js"></script>
+  </body>
+</html>

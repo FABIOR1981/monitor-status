@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Administración - Monitor de Estado</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>"
+    />
+    <!-- La configuración se carga antes de pintar para elegir el tema sin parpadeo -->
+    <script src="js/config.js"></script>
+    <link id="estilo-principal" rel="stylesheet" href="css/tema_oscuro.css" />
+    <script>
+      document.getElementById('estilo-principal').href =
+        TEMA_FILES[obtenerTemaInicial()];
+    </script>
+    <link rel="stylesheet" href="css/abm.css" />
+  </head>
+  <body>
+    <button
+      id="boton-tema"
+      class="boton-tema"
+      onclick="cambiarTema()"
+      title="Cambiar modo de visualización"
+    >
+      <span id="icono-tema">🌙</span>
+    </button>
+
+    <div class="abm">
+      <header class="abm-cabecera">
+        <div>
+          <h1>⚙️ Panel de Administración</h1>
+          <p class="abm-suave">Sitios que muestra el monitor, ordenados como se ven en el tablero</p>
+        </div>
+        <nav class="abm-enlaces">
+          <a href="index.html" id="enlace-volver-monitor">← Volver al tablero</a>
+          <a href="leyenda.html" id="enlace-ver-leyenda">Ver Leyenda</a>
+        </nav>
+      </header>
+
+      <div id="mensaje" class="hidden"></div>
+
+      <!-- Formulario ABM -->
+      <details class="abm-tarjeta abm-form" id="form-details">
+        <summary><span id="form-title">➕ Agregar Nuevo Sitio</span></summary>
+        <form id="abm-form">
+          <input type="hidden" id="edit-index" value="" />
+
+          <div class="form-group">
+            <label for="nombre">Nombre del sitio *</label>
+            <input type="text" id="nombre" required placeholder="Ej: Google" />
+          </div>
+
+          <div class="form-group">
+            <label for="url">URL *</label>
+            <input type="url" id="url" required placeholder="Ej: https://www.google.com" />
+            <small>Debe incluir https:// o http://</small>
+          </div>
+
+          <div class="form-group">
+            <label for="grupo">Grupo (opcional)</label>
+            <select id="grupo">
+              <option value="">Sin grupo (Otros servicios)</option>
+              <option value="CRITICO">CRÍTICO</option>
+              <option value="REFERENCIA">REFERENCIA</option>
+            </select>
+            <small>Crítico: se destaca arriba. Referencia: va al final de la lista (ej. Google).</small>
+          </div>
+
+          <div class="form-group">
+            <label for="orden">Orden (opcional)</label>
+            <input type="number" id="orden" min="1" placeholder="Vacío: orden alfabético" />
+            <small>El 1 fija el sitio primero en su lista.</small>
+          </div>
+
+          <div class="form-group ancho">
+            <label for="contiene">Texto que debe contener (opcional)</label>
+            <input type="text" id="contiene" maxlength="100" placeholder="Ej: Iniciar sesión" />
+            <small>Si la página responde pero no muestra este texto, se marca como error (detecta páginas de error o mantenimiento que devuelven 200).</small>
+          </div>
+
+          <div class="form-botones">
+            <button type="submit" class="btn btn-primary" id="btn-submit">Agregar Sitio</button>
+            <button type="button" class="btn hidden" id="btn-cancel" onclick="cancelarEdicion()">Cancelar</button>
+          </div>
+        </form>
+      </details>
+
+      <!-- Lista de sitios -->
+      <section>
+        <h2 class="abm-seccion">📋 Sitios configurados (<span id="total-sitios">0</span>)</h2>
+        <div id="lista-sitios"><div class="vacio">Cargando datos...</div></div>
+      </section>
+
+      <!-- Barra de guardado -->
+      <div class="abm-tarjeta abm-guardado" id="barra-guardado">
+        <div id="aviso-cambios">
+          ● Hay cambios sin guardar
+          <button class="btn" onclick="descartarCambios()">Descartar</button>
+        </div>
+        <p class="abm-guardado-texto">💡 Se guarda en el servidor (se ve al instante en el tablero) o como archivo JSON.</p>
+        <div class="abm-guardado-botones">
+          <button class="btn btn-primary" onclick="guardarLista()" id="btn-guardar-lista">🚀 Guardar</button>
+          <button class="btn" onclick="descargarJSON()">💾 Descargar JSON</button>
+        </div>
+        <div id="estado-guardado"></div>
+      </div>
+    </div>
+
+    <script>
+      let sitios = [];
+
+      function aplicarTemaABM() {
+        const tema = obtenerTemaInicial();
+        document.body.classList.toggle('oscuro', TEMAS_OSCUROS.includes(tema));
+
+        const busqueda = window.location.search;
+        document.getElementById('enlace-volver-monitor').href = 'index.html' + busqueda;
+        document.getElementById('enlace-ver-leyenda').href = 'leyenda.html' + busqueda;
+
+        // Botón: solo si el tema tiene su pareja claro/oscuro
+        const boton = document.getElementById('boton-tema');
+        const destino = TEMA_TOGGLE_PAIRS[tema];
+        if (!destino) {
+          boton.style.display = 'none';
+          return;
+        }
+        boton.style.display = 'flex';
+        document.getElementById('icono-tema').textContent = TEMAS_OSCUROS.includes(tema) ? '☀️' : '🌙';
+      }
+
+      function cambiarTema() {
+        const destino = TEMA_TOGGLE_PAIRS[obtenerTemaInicial()];
+        if (!destino || !TEMA_FILES[destino]) return;
+        document.getElementById('estilo-principal').href = TEMA_FILES[destino];
+        const params = new URLSearchParams(window.location.search);
+        params.set('tema', destino);
+        recordarTema(destino);
+        window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+        aplicarTemaABM();
+      }
+
+      // los datos de la lista no se interpretan como HTML
+      function esc(valor) {
+        return String(valor ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+      function enlaceSeguro(url) {
+        return /^https?:\/\//i.test(String(url)) ? String(url) : '#';
+      }
+
+      async function cargarDatos() {
+        try {
+          sitios = await leerListaSitios();
+          renderizarTabla();
+        } catch (error) {
+          mostrarMensaje(
+            'Error al cargar los datos: ' + error.message,
+            'danger'
+          );
+        }
+      }
+
+      function guardarEnLocalStorage() {
+        localStorage.setItem('webs_abm', JSON.stringify(sitios));
+        actualizarAvisoCambios();
+      }
+
+      function actualizarAvisoCambios() {
+        const hay = localStorage.getItem('webs_abm') !== null;
+        document
+          .getElementById('barra-guardado')
+          .classList.toggle('con-cambios', hay);
+      }
+
+      // el borrador vive en localStorage hasta que se guarda en el servidor
+      function descartarCambios() {
+        if (!confirm('¿Descartar los cambios sin guardar?')) return;
+        localStorage.removeItem('webs_abm');
+        cancelarEdicion();
+        cargarDatos();
+        actualizarAvisoCambios();
+      }
+
+      function cargarDesdeLocalStorage() {
+        const guardado = localStorage.getItem('webs_abm');
+        if (guardado) {
+          sitios = JSON.parse(guardado);
+          renderizarTabla();
+        } else {
+          cargarDatos();
+        }
+        actualizarAvisoCambios();
+      }
+
+      // Dibuja los sitios en el mismo orden que el tablero: críticos, otros y referencia al final
+      function tarjetaSitio(sitio, index) {
+        const chip = sitio.grupo
+          ? `<span class="chip ${sitio.grupo === 'CRITICO' ? 'critico' : 'referencia'}">${sitio.grupo === 'CRITICO' ? 'CRÍTICO' : esc(sitio.grupo)}</span>`
+          : '';
+        const posicion = sitio.orden ? `Orden fijo: ${esc(sitio.orden)}` : '';
+        return `
+          <article class="abm-tarjeta sitio ${sitio.grupo === 'CRITICO' ? 'critico' : ''}">
+            <div class="sitio-cab">
+              <span class="sitio-nombre">${esc(sitio.nombre)}</span>${chip}
+            </div>
+            <a href="${esc(enlaceSeguro(sitio.url))}" target="_blank" rel="noopener noreferrer">${esc(sitio.url)}</a>
+            ${sitio.contiene ? `<div class="sitio-contiene">Debe contener: ${esc(sitio.contiene)}</div>` : ''}
+            ${posicion ? `<div class="sitio-pos">${posicion}</div>` : ''}
+            <div class="sitio-acciones">
+              <button class="btn" onclick="editarSitio(${index})">✏️ Editar</button>
+              <button class="btn btn-danger" onclick="eliminarSitio(${index})">🗑️ Eliminar</button>
+            </div>
+          </article>`;
+      }
+
+      function renderizarTabla() {
+        const lista = document.getElementById('lista-sitios');
+        document.getElementById('total-sitios').textContent = sitios.length;
+
+        if (sitios.length === 0) {
+          lista.innerHTML = '<div class="vacio">No hay sitios configurados. ¡Agrega el primero!</div>';
+          return;
+        }
+
+        // Se conserva la posición original de cada sitio para poder editarlo o eliminarlo
+        const items = sitios.map((sitio, index) => ({ sitio, index }));
+        const criticos = items.filter((i) => i.sitio.grupo === 'CRITICO');
+        const referencia = items.filter((i) => i.sitio.grupo === 'REFERENCIA');
+        const otros = items.filter((i) => i.sitio.grupo !== 'CRITICO' && i.sitio.grupo !== 'REFERENCIA');
+        const ordenar = (arr) =>
+          arr.slice().sort((x, y) => {
+            const fx = x.sitio.orden === 1 ? 0 : 1;
+            const fy = y.sitio.orden === 1 ? 0 : 1;
+            if (fx !== fy) return fx - fy;
+            return String(x.sitio.nombre).localeCompare(String(y.sitio.nombre));
+          });
+        const bloque = (titulo, arr) =>
+          arr.length
+            ? `<h3 class="abm-seccion">${titulo}</h3><div class="abm-grid">${ordenar(arr)
+                .map((i) => tarjetaSitio(i.sitio, i.index))
+                .join('')}</div>`
+            : '';
+
+        lista.innerHTML =
+          bloque('Críticos', criticos) +
+          bloque(criticos.length ? 'Otros servicios' : '', otros) +
+          bloque('Referencia (al final de Otros servicios)', referencia);
+      }
+
+      function mostrarMensaje(texto, tipo = 'success') {
+        const mensaje = document.getElementById('mensaje');
+        mensaje.className = `alert alert-${tipo}`;
+        mensaje.textContent = texto;
+        mensaje.classList.remove('hidden');
+
+        setTimeout(() => {
+          mensaje.classList.add('hidden');
+        }, 5000);
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      document
+        .getElementById('abm-form')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+
+          const editIndex = document.getElementById('edit-index').value;
+          const sitio = {
+            nombre: document.getElementById('nombre').value.trim(),
+            url: document.getElementById('url').value.trim(),
+          };
+
+          const orden = document.getElementById('orden').value;
+          if (orden) {
+            sitio.orden = parseInt(orden);
+          }
+
+          const grupo = document.getElementById('grupo').value;
+          if (grupo) {
+            sitio.grupo = grupo;
+          }
+
+          const contiene = document.getElementById('contiene').value.trim();
+          if (contiene) {
+            sitio.contiene = contiene;
+          }
+
+          if (editIndex !== '') {
+            sitios[parseInt(editIndex)] = sitio;
+            mostrarMensaje('✅ Sitio actualizado correctamente', 'success');
+          } else {
+            sitios.push(sitio);
+            mostrarMensaje('✅ Sitio agregado correctamente', 'success');
+          }
+
+          guardarEnLocalStorage();
+          renderizarTabla();
+          this.reset();
+          cancelarEdicion();
+          document.getElementById('form-details').open = false;
+        });
+
+      function editarSitio(index) {
+        const sitio = sitios[index];
+
+        document.getElementById('edit-index').value = index;
+        document.getElementById('nombre').value = sitio.nombre;
+        document.getElementById('url').value = sitio.url;
+        document.getElementById('orden').value = sitio.orden || '';
+        document.getElementById('grupo').value = sitio.grupo || '';
+        document.getElementById('contiene').value = sitio.contiene || '';
+
+        document.getElementById('form-title').textContent = '✏️ Editar Sitio';
+        document.getElementById('btn-submit').textContent = 'Actualizar Sitio';
+        document.getElementById('btn-cancel').classList.remove('hidden');
+
+        // Abrir el formulario y llevarlo a la vista
+        const detalles = document.getElementById('form-details');
+        detalles.open = true;
+        detalles.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function cancelarEdicion() {
+        document.getElementById('edit-index').value = '';
+        document.getElementById('form-title').textContent =
+          '➕ Agregar Nuevo Sitio';
+        document.getElementById('btn-submit').textContent = 'Agregar Sitio';
+        document.getElementById('btn-cancel').classList.add('hidden');
+        document.getElementById('abm-form').reset();
+      }
+
+      function eliminarSitio(index) {
+        const sitio = sitios[index];
+        if (confirm(`¿Estás seguro de eliminar "${sitio.nombre}"?`)) {
+          sitios.splice(index, 1);
+          guardarEnLocalStorage();
+          renderizarTabla();
+          mostrarMensaje('✅ Sitio eliminado correctamente', 'success');
+        }
+      }
+
+      // Guardar en el servidor (Cloudflare KV): el tablero lo ve al instante
+      async function guardarLista() {
+        const btn = document.getElementById('btn-guardar-lista');
+        const estadoDiv = document.getElementById('estado-guardado');
+
+        try {
+          btn.disabled = true;
+          btn.textContent = '⏳ Guardando...';
+          estadoDiv.textContent = 'Enviando cambios al servidor...';
+
+          const response = await fetch('/api/webs', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              data: sitios,
+            }),
+          });
+
+          const result = await response.json().catch(() => ({}));
+
+          if (response.ok) {
+            mostrarMensaje(
+              '✅ ¡Cambios guardados! El tablero los toma en la próxima carga.',
+              'success'
+            );
+            estadoDiv.innerHTML = `<span class="ok">✓ Última actualización: ${new Date().toLocaleString()}</span>`;
+
+            localStorage.removeItem('webs_abm');
+            actualizarAvisoCambios();
+          } else {
+            throw new Error(
+              result.error ||
+                (response.status === 404
+                  ? 'este sitio no tiene guardado en servidor'
+                  : 'Error ' + response.status)
+            );
+          }
+        } catch (error) {
+          mostrarMensaje(
+            '❌ Error al guardar: ' +
+              error.message +
+              '. Podés descargar el JSON como respaldo.',
+            'danger'
+          );
+          estadoDiv.innerHTML = `<span class="mal">✗ Error: ${esc(error.message)}</span>`;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '🚀 Guardar';
+        }
+      }
+
+      function descargarJSON() {
+        const dataStr = JSON.stringify(sitios, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'webs.json';
+        link.click();
+        URL.revokeObjectURL(url);
+
+        mostrarMensaje(
+          '💾 Archivo descargado. Reemplaza data/webs.json en tu servidor.',
+          'success'
+        );
+      }
+
+      aplicarTemaABM();
+      cargarDesdeLocalStorage();
+    </script>
+  </body>
+</html>

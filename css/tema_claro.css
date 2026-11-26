@@ -1,0 +1,28 @@
+/* Tema claro: variables de color compartidas por el tablero, el ABM y la leyenda */
+:root {
+  --bg: #f2f5f8;
+  --text: #18202a;
+  --accent: #0b63d6;
+  --container-bg: #ffffff;
+  --container-radius: 14px;
+  --container-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --header-color: #0b63d6;
+  --table-header-bg: #004085;
+  --table-header-color: #ffffff;
+  --link-color: #0b63d6;
+
+  /* Pizarrón */
+  --suave: #566170;
+  --borde: #d8dee6;
+  --ok: #1a7f37;
+  --lento: #9a6700;
+  --sinconf: #0b63d6;
+  --caido: #cf222e;
+  --aviso: #9a6700;
+  --hueco: #c4ccd6;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}

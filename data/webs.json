@@ -1,0 +1,46 @@
+[
+  {
+    "nombre": "Google",
+    "url": "https://www.google.com",
+    "grupo": "REFERENCIA"
+  },
+  {
+    "nombre": "AhiVa",
+    "url": "https://ahiva.correo.com.uy",
+    "contiene": "Tipo de documento",
+    "grupo": "CRITICO"
+  },
+  {
+    "nombre": "CasillaMia",
+    "url": "https://www.casillamia.uy",
+    "contiene": "Registrate gratis"
+  },
+  {
+    "nombre": "Correo",
+    "url": "https://www.correo.com.uy/home",
+    "grupo": "CRITICO",
+    "contiene": "Rastrear envío"
+  },
+  {
+    "nombre": "ExportaFacil",
+    "url": "https://www.exportafacil.com.uy/exportafacil",
+    "contiene": "Registrarse como usuario"
+  },
+  {
+    "nombre": "Aduanas Clientes",
+    "url": "https://ahiva.correo.com.uy/aduanas-web/login?1",
+    "contiene": "Documento",
+    "grupo": "CRITICO"
+  },
+  {
+    "nombre": "ProdAgenda",
+    "url": "https://prodagenda.correo.com.uy/sae/agendarReserva/Paso1.xhtml?e=2&a=2&r=6",
+    "contiene": "SERVICIO DE RESERVA DE CORREO URUGUAYO"
+  },
+  {
+    "nombre": "Notas",
+    "url": "https://notas.correo.com.uy/notas",
+    "contiene": "Ingreso de Clientes",
+    "grupo": "CRITICO"
+  }
+]

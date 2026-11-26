@@ -1,0 +1,325 @@
+/* Leyenda: mismo estilo que el pizarrón. Los colores vienen de css/tema_claro.css o tema_oscuro.css */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  line-height: 1.5;
+}
+.ley {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.ley-suave {
+  color: var(--suave);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Cabecera */
+.ley-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-right: 64px;
+}
+.ley-cabecera h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--header-color);
+}
+.ley-volver {
+  font-size: 14px;
+  color: var(--link-color);
+  text-decoration: none;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 7px 14px;
+}
+.ley-volver:hover {
+  border-color: var(--accent);
+}
+.ley-volver::before {
+  content: '← ';
+}
+
+/* Secciones */
+.ley-seccion h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--suave);
+}
+.ley-intro {
+  margin: 0;
+  max-width: 860px;
+  color: var(--text);
+}
+
+.ley-tarjeta {
+  background: var(--container-bg);
+  border: 1px solid var(--borde);
+  border-radius: var(--container-radius);
+  padding: 16px 20px;
+}
+.ley-rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+/* Tarjetas de distinto alto: cada una mide lo que necesita su texto */
+.ley-rejilla--libre {
+  align-items: start;
+}
+
+/* Chips de estado (iguales a los del tablero) */
+.ley-chip {
+  --e: var(--ok);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--e) 16%, transparent);
+  color: var(--e);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.ley-chip.estado-lento {
+  --e: var(--lento);
+}
+.ley-chip.estado-caido {
+  --e: var(--caido);
+}
+.ley-chip.estado-sin-datos {
+  --e: var(--hueco);
+}
+.ley-estado {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  border-top: 3px solid var(--e, var(--ok));
+}
+.ley-estado.estado-lento {
+  --e: var(--lento);
+}
+.ley-estado.estado-caido {
+  --e: var(--caido);
+}
+.ley-estado.estado-sin-datos {
+  --e: var(--hueco);
+}
+.ley-estado p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Nota destacada: estado y velocidad */
+.ley-nota {
+  margin-top: 14px;
+  border-left: 4px solid var(--accent);
+}
+.ley-nota strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.ley-nota p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Escala de velocidad */
+.ley-grupo {
+  margin-top: 18px;
+}
+.ley-grupo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--g);
+}
+.ley-grupo-titulo::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--g);
+}
+.ley-nivel {
+  --g: var(--ok);
+  background: var(--container-bg);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--n, var(--g));
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.ley-nivel summary {
+  display: grid;
+  grid-template-columns: 170px 190px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.ley-nivel summary::-webkit-details-marker {
+  display: none;
+}
+.ley-nivel-nombre {
+  font-weight: 700;
+  color: var(--n, var(--g));
+}
+.ley-nivel-rango {
+  font-size: 14px;
+  color: var(--suave);
+}
+.ley-nivel-resumen {
+  font-size: 14px;
+}
+.ley-nivel-resumen::after {
+  content: ' ▸';
+  color: var(--suave);
+}
+.ley-nivel[open] .ley-nivel-resumen::after {
+  content: ' ▾';
+}
+.ley-nivel p {
+  margin: 0;
+  padding: 0 16px 14px;
+  font-size: 14px;
+  color: var(--suave);
+}
+.grupo-ok {
+  --g: var(--ok);
+}
+.grupo-lento {
+  --g: var(--lento);
+}
+.grupo-caido {
+  --g: var(--caido);
+}
+/* La escala va del verde al rojo */
+.nivel-very_fast {
+  --n: var(--ok);
+}
+.nivel-fast {
+  --n: color-mix(in srgb, var(--ok) 75%, var(--lento));
+}
+.nivel-normal {
+  --n: color-mix(in srgb, var(--ok) 45%, var(--lento));
+}
+.nivel-slow {
+  --n: var(--lento);
+}
+.nivel-critical {
+  --n: color-mix(in srgb, var(--lento) 55%, var(--caido));
+}
+.nivel-risk {
+  --n: color-mix(in srgb, var(--lento) 25%, var(--caido));
+}
+.nivel-extreme_risk,
+.nivel-down {
+  --n: var(--caido);
+}
+
+/* Cómo leer una tarjeta */
+.ley-marca h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--header-color);
+}
+.ley-marca p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+/* Códigos HTTP */
+.ley-plegable {
+  margin-top: 12px;
+}
+.ley-plegable summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--link-color);
+  padding: 6px 0;
+}
+.ley-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+  background: var(--container-bg);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.ley-tabla th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--table-header-bg);
+  color: var(--table-header-color);
+}
+.ley-tabla td {
+  padding: 9px 14px;
+  border-top: 1px solid var(--borde);
+  vertical-align: top;
+}
+.ley-tabla td:first-child {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Botón de cambio de tema (igual al del tablero) */
+.boton-tema {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4em;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--container-bg);
+  color: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+@media (max-width: 720px) {
+  .ley {
+    padding: 18px 14px 36px;
+  }
+  .ley-cabecera h1 {
+    font-size: 22px;
+  }
+  .ley-nivel summary {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
