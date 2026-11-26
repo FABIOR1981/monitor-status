@@ -28,7 +28,16 @@
       <span id="icono-tema">🌙</span>
     </button>
 
-    <div class="abm">
+    <div class="clave-fondo" id="clave-modal">
+      <form class="clave-caja" id="clave-form">
+        <h2>Panel de administración</h2>
+        <input type="password" id="clave-input" placeholder="Clave" autocomplete="off" required />
+        <div id="clave-error" class="mal"></div>
+        <button class="btn btn-primary" type="submit">Entrar</button>
+      </form>
+    </div>
+
+    <div class="abm hidden" id="abm-contenido">
       <header class="abm-cabecera">
         <div>
           <h1>⚙️ Panel de Administración</h1>
@@ -346,6 +355,41 @@
       }
 
       // Guardar en el servidor (Cloudflare KV): el tablero lo ve al instante
+      async function enviarLista(cuerpo) {
+        return fetch('/api/webs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Clave': sessionStorage.getItem('claveAbm') || '',
+          },
+          body: JSON.stringify(cuerpo),
+        });
+      }
+
+      function pedirClave() {
+        sessionStorage.removeItem('claveAbm');
+        document.getElementById('abm-contenido').classList.add('hidden');
+        document.getElementById('clave-modal').classList.remove('hidden');
+        document.getElementById('clave-input').focus();
+      }
+
+      async function entrar(clave) {
+        sessionStorage.setItem('claveAbm', clave);
+        const res = await enviarLista({ verificar: true });
+        if (!res.ok) return false;
+        document.getElementById('clave-modal').classList.add('hidden');
+        document.getElementById('abm-contenido').classList.remove('hidden');
+        return true;
+      }
+
+      document.getElementById('clave-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('clave-input');
+        const ok = await entrar(input.value.trim());
+        document.getElementById('clave-error').textContent = ok ? '' : 'Clave incorrecta';
+        input.value = '';
+      });
+
       async function guardarLista() {
         const btn = document.getElementById('btn-guardar-lista');
         const estadoDiv = document.getElementById('estado-guardado');
@@ -355,15 +399,8 @@
           btn.textContent = '⏳ Guardando...';
           estadoDiv.textContent = 'Enviando cambios al servidor...';
 
-          const response = await fetch('/api/webs', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              data: sitios,
-            }),
-          });
+          const response = await enviarLista({ data: sitios });
+          if (response.status === 401) pedirClave();
 
           const result = await response.json().catch(() => ({}));
 
@@ -416,6 +453,7 @@
 
       aplicarTemaABM();
       cargarDesdeLocalStorage();
+      entrar(sessionStorage.getItem('claveAbm') || '').then((ok) => !ok && pedirClave());
     </script>
   </body>
 </html>

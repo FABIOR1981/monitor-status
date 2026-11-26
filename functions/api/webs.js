@@ -1,5 +1,5 @@
 // GET /api/webs  -> lista de sitios (KV; si está vacío, data/webs.json)
-// POST /api/webs -> guarda { data: [...] } en KV. Binding: WEBS.
+// POST /api/webs -> guarda { data: [...] } en KV (header X-Clave). Binding: WEBS.
 
 const KEY = 'webs';
 
@@ -11,6 +11,10 @@ const HEADERS = {
 
 const json = (body, status = 200, extra = {}) =>
   new Response(JSON.stringify(body), { status, headers: { ...HEADERS, ...extra } });
+
+// Clave provisoria: la fecha de hoy en Uruguay (AAAAMMDD)
+export const claveDelDia = (ahora = Date.now()) =>
+  new Date(ahora - 3 * 3600 * 1000).toISOString().slice(0, 10).replaceAll('-', '');
 
 export function checkLista(data) {
   if (!Array.isArray(data)) return 'Los datos deben ser una lista';
@@ -30,7 +34,7 @@ export const onRequestOptions = () =>
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Clave',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     },
   });
@@ -54,8 +58,13 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'KV no configurado', help: 'Enlazá un KV con el nombre WEBS (Settings > Bindings)' }, 501);
   }
 
+  if (request.headers.get('X-Clave') !== claveDelDia()) {
+    return json({ error: 'Clave incorrecta' }, 401);
+  }
+
   const body = await request.json().catch(() => null);
   if (!body) return json({ error: 'El cuerpo debe ser JSON' }, 400);
+  if (body.verificar) return json({ success: true });
 
   const problema = checkLista(body.data);
   if (problema) return json({ error: problema }, 400);

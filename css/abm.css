@@ -324,3 +324,37 @@ body {
     margin-left: 0;
   }
 }
+
+/* Pedido de clave */
+.clave-fondo {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  z-index: 10;
+}
+.clave-caja {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(320px, 90vw);
+}
+.clave-caja h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.clave-caja input {
+  padding: 10px 12px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+}
+.clave-caja .mal {
+  color: var(--caido);
+  font-size: 13px;
+  min-height: 18px;
+}
