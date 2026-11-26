@@ -32,7 +32,7 @@ function cargar(archivos, extra = {}) {
       fn();
       return 0;
     },
-    window: { location: { search: '' }, localStorage: almacen },
+    window: { location: { search: '' }, sessionStorage: almacen },
     location: { protocol: 'https:' },
     ...extra,
   });

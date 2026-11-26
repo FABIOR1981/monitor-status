@@ -27,20 +27,20 @@ test('achicar la ventana recorta el historial existente', () => {
 test('el historial sobrevive a una recarga (se guarda en el navegador)', () => {
   const c = nuevo();
   c.agregarMedicion('u', ok(77), 5000);
-  const crudo = c.window.localStorage.getItem('monitorStatusHistorial2');
+  const crudo = c.window.sessionStorage.getItem('monitorStatusHistorial2');
 
   const c2 = nuevo();
-  c2.window.localStorage.setItem('monitorStatusHistorial2', crudo);
+  c2.window.sessionStorage.setItem('monitorStatusHistorial2', crudo);
   c2.cargarHistorial();
   assert.equal(leer(c2, 'historialStatus')['u'][0].t, 77);
 });
 
 test('datos guardados dañados no rompen la carga', () => {
   const c = nuevo();
-  c.window.localStorage.setItem('monitorStatusHistorial2', '{no es json');
+  c.window.sessionStorage.setItem('monitorStatusHistorial2', '{no es json');
   c.cargarHistorial();
   assert.deepEqual(plano(Object.keys(leer(c, 'historialStatus'))), []);
-  c.window.localStorage.setItem('monitorStatusHistorial2', JSON.stringify({ u: [null, { t: 'x' }, { t: 5, ts: 1, s: 200 }] }));
+  c.window.sessionStorage.setItem('monitorStatusHistorial2', JSON.stringify({ u: [null, { t: 'x' }, { t: 5, ts: 1, s: 200 }] }));
   c.cargarHistorial();
   assert.equal(leer(c, 'historialStatus')['u'].length, 1);
 });

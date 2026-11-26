@@ -1,5 +1,6 @@
-// Historial de mediciones por sitio, en localStorage, como ventana móvil: al llenarse se
-// descarta lo más viejo. Así el tablero puede quedar abierto todo el día y sobrevive a recargas.
+// Historial de mediciones por sitio, en sessionStorage, como ventana móvil: al llenarse se
+// descarta lo más viejo. Sobrevive a recargas, pero se borra al cerrar la pestaña o el navegador:
+// cada vez que se abre el tablero empieza de cero.
 // Entrada: { t: latencia ms, s: status, ts: momento, o: origen, nc: no concluyente, e: error }
 
 let historialStatus = {};
@@ -13,7 +14,7 @@ const esFalloEntrada = (e) => e.s !== 200 || e.t >= UMBRALES_LATENCIA.PENALIZACI
 
 function leerAlmacen(clave) {
   try {
-    const datos = JSON.parse(window.localStorage.getItem(clave));
+    const datos = JSON.parse(window.sessionStorage.getItem(clave));
     return datos && typeof datos === 'object' && !Array.isArray(datos) ? datos : {};
   } catch {
     return {}; // sin acceso o JSON roto: se arranca de cero
@@ -22,7 +23,7 @@ function leerAlmacen(clave) {
 
 function escribirAlmacen(clave, datos) {
   try {
-    window.localStorage.setItem(clave, JSON.stringify(datos));
+    window.sessionStorage.setItem(clave, JSON.stringify(datos));
   } catch (err) {
     console.warn('No se pudo guardar el historial en el navegador:', err);
   }
