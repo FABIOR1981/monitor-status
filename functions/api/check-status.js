@@ -2,6 +2,9 @@
 // Mide desde el servidor de Cloudflare. La latencia real la mide el navegador (js/medicion.js);
 // esto aporta el código HTTP y, si se pide, si la página contiene un texto.
 // Un certificado inválido llega como error de conexión (status 0): Cloudflare no da el motivo.
+// Solo mide sitios de la lista guardada; así no sirve de proxy abierto.
+
+import { leerLista } from './webs.js';
 
 const HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -75,6 +78,10 @@ export async function onRequestGet({ request, env }) {
   if (!parsed || !/^https?:$/.test(parsed.protocol)) {
     return json({ error: 'La URL debe ser http o https.' }, 400);
   }
+
+  const lista = await leerLista(request, env);
+  const registradas = lista ? JSON.parse(lista.texto).map((s) => s.url) : [];
+  if (!registradas.includes(target)) return json({ error: 'URL no registrada.' }, 403);
 
   const contiene = (params.get('contiene') || '').slice(0, 100).trim();
   const timeout = parseInt(env.REQUEST_TIMEOUT_MS || '8000', 10);

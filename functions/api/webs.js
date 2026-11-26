@@ -39,18 +39,20 @@ export const onRequestOptions = () =>
     },
   });
 
-export async function onRequestGet({ request, env }) {
+// KV; si está vacío (primera vez o sin KV), el archivo del repo hace de lista inicial
+export async function leerLista(request, env) {
   const guardada = await env.WEBS?.get(KEY);
-  if (guardada) {
-    return new Response(guardada, { headers: { ...HEADERS, 'X-Origen-Lista': 'kv' } });
-  }
+  if (guardada) return { texto: guardada, origen: 'kv' };
 
-  // primera vez (o sin KV): el archivo del repo hace de lista inicial
   const archivo = await env.ASSETS?.fetch(new URL('/data/webs.json', request.url));
-  if (archivo?.ok) {
-    return new Response(await archivo.text(), { headers: { ...HEADERS, 'X-Origen-Lista': 'archivo' } });
-  }
-  return json({ error: 'No hay lista de sitios disponible' }, 404);
+  if (archivo?.ok) return { texto: await archivo.text(), origen: 'archivo' };
+  return null;
+}
+
+export async function onRequestGet({ request, env }) {
+  const lista = await leerLista(request, env);
+  if (!lista) return json({ error: 'No hay lista de sitios disponible' }, 404);
+  return new Response(lista.texto, { headers: { ...HEADERS, 'X-Origen-Lista': lista.origen } });
 }
 
 export async function onRequestPost({ request, env }) {
