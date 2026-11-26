@@ -37,17 +37,16 @@ function nivelLatencia(ms) {
 }
 
 // Barras de la más vieja (izquierda) a la más nueva; lo no medido queda libre a la derecha.
-// Si dos mediciones están más separadas de lo normal se intercalan huecos (tablero cerrado).
+// Un corte (tablero cerrado) entre dos mediciones es UN solo hueco, por largo que sea: así
+// cada medición nueva se suma a la derecha y la fila se llena de izquierda a derecha.
 // `alto` es el % de la altura del contenedor.
 function construirBarras(entradas, ahora, cantidad, frecuenciaMs) {
   const barras = [];
   let referencia = ahora;
   for (let i = entradas.length - 1; i >= 0 && barras.length < cantidad; i--) {
     const entrada = entradas[i];
-    const huecos = Math.max(0, Math.round((referencia - entrada.ts) / frecuenciaMs) - 1);
-    for (let h = 0; h < huecos && barras.length < cantidad; h++) {
-      barras.push({ clase: 'hueco', alto: 12 });
-    }
+    const hayCorte = Math.round((referencia - entrada.ts) / frecuenciaMs) > 1;
+    if (hayCorte) barras.push({ clase: 'hueco', alto: 12 });
     if (barras.length >= cantidad) break;
     const estado = clasificarEntrada(entrada);
     barras.push({

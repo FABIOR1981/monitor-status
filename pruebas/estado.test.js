@@ -55,13 +55,12 @@ test('construirBarras: siempre devuelve la cantidad pedida, de la más vieja a l
   assert.ok(barras.slice(3).every((b) => b.clase === 'vacio'));
 });
 
-test('construirBarras: un corte largo entre mediciones deja huecos "sin medición"', () => {
-  // dos mediciones separadas por 20 minutos (4 intervalos de 5 min => 3 huecos)
-  const entradas = [entrada(100, 200, 20), entrada(100, 200, 0)];
-  const barras = ctx.construirBarras(entradas, ahora, 6, FREC);
-  const clases = barras.map((b) => b.clase);
-  assert.deepEqual(plano(clases.slice(0, 5)), ['ok', 'hueco', 'hueco', 'hueco', 'ok']);
-  assert.equal(clases[5], 'vacio');
+test('construirBarras: un corte entre mediciones es un solo hueco, sin importar cuánto dure', () => {
+  const corto = ctx.construirBarras([entrada(100, 200, 20), entrada(100, 200, 0)], ahora, 6, FREC);
+  assert.deepEqual(plano(corto.map((b) => b.clase).slice(0, 4)), ['ok', 'hueco', 'ok', 'vacio']);
+
+  const largo = ctx.construirBarras([entrada(100, 200, 600), entrada(100, 200, 0)], ahora, 6, FREC);
+  assert.deepEqual(plano(largo.map((b) => b.clase).slice(0, 4)), ['ok', 'hueco', 'ok', 'vacio']);
 });
 
 test('construirBarras: pequeñas demoras del ciclo no inventan huecos', () => {
