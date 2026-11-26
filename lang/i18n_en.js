@@ -234,7 +234,6 @@ TEXTOS_EN.pizarron = {
 TEXTOS_EN.leyenda = {
   title_browser: 'Status Monitor Legend',
   main_header: 'Latency Thresholds and Operational Justification',
-  link_volver: 'Back to the board',
   subtitulo: 'How to read the board: statuses, speed and marks',
   estados_title: 'The four statuses',
   estados: [

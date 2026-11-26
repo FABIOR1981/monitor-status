@@ -18,11 +18,6 @@ function aplicarTemaLeyenda(tema) {
   const etiqueta = oscuro ? tx.btn_tema_claro : tx.btn_tema_oscuro;
   boton.title = etiqueta;
   boton.setAttribute('aria-label', etiqueta);
-
-  // El enlace de vuelta lleva el tema y el idioma elegidos
-  const params = new URLSearchParams(window.location.search);
-  params.set('tema', tema);
-  document.getElementById('enlace-volver').href = `index.html?${params.toString()}`;
 }
 
 function alternarTemaLeyenda() {
@@ -148,7 +143,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('leyenda-titulo').textContent = ley.title_browser;
   document.getElementById('titulo-leyenda').textContent = ley.main_header;
   document.getElementById('subtitulo-leyenda').textContent = ley.subtitulo;
-  document.getElementById('enlace-volver').textContent = ley.link_volver;
 
   const contenido = document.getElementById('contenido-leyenda');
   contenido.replaceChildren();

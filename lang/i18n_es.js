@@ -233,7 +233,6 @@ TEXTOS_ES.pizarron = {
 TEXTOS_ES.leyenda = {
   title_browser: 'Leyenda del Monitor de Estado',
   main_header: 'Umbrales de Latencia y Justificación Operacional',
-  link_volver: 'Volver al tablero',
   subtitulo: 'Cómo leer el tablero: estados, velocidad y marcas',
   estados_title: 'Los cuatro estados',
   estados: [
