@@ -35,7 +35,6 @@
           <p class="abm-suave">Sitios que muestra el monitor, ordenados como se ven en el tablero</p>
         </div>
         <nav class="abm-enlaces">
-          <a href="index.html" id="enlace-volver-monitor">← Volver al tablero</a>
           <a href="leyenda.html" id="enlace-ver-leyenda">Ver Leyenda</a>
         </nav>
       </header>
@@ -117,7 +116,6 @@
         document.body.classList.toggle('oscuro', TEMAS_OSCUROS.includes(tema));
 
         const busqueda = window.location.search;
-        document.getElementById('enlace-volver-monitor').href = 'index.html' + busqueda;
         document.getElementById('enlace-ver-leyenda').href = 'leyenda.html' + busqueda;
 
         // Botón: solo si el tema tiene su pareja claro/oscuro
