@@ -184,7 +184,7 @@ function crearMosaico(vista, midiendo) {
     fila.textContent = tx.midiendo;
   } else if (vista.haceMs !== null) {
     fila.textContent = textoHace(vista.haceMs);
-    if (vista.origen === 'navegador' || vista.origen === 'servidor') {
+    if (['navegador', 'servidor', 'estimado'].includes(vista.origen)) {
       const origen = crear(
         'span',
         `pz-origen-${vista.origen}`,

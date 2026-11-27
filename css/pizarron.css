@@ -302,7 +302,8 @@ a {
 .pz-origen-navegador {
   color: var(--ok);
 }
-.pz-origen-servidor {
+.pz-origen-servidor,
+.pz-origen-estimado {
   color: var(--lento);
 }
 

@@ -197,6 +197,8 @@ TEXTOS_EN.pizarron = {
   origen_navegador: 'from your network',
   origen_servidor: 'from the server',
   origen_navegador_tip: 'Measured by your browser: closest to what a user experiences.',
+  origen_estimado: 'estimated',
+  origen_estimado_tip: 'The site does not let your browser read the response; latency is the time until it was rejected and is approximate.',
   origen_servidor_tip: 'Your browser could not measure it; the response comes from the monitor server (US) and is usually slower.',
   hace: 'ago',
   recien: 'just measured',

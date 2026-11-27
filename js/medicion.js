@@ -18,11 +18,12 @@ async function muestra(url) {
     });
     return { ok: true, ms: Math.round(performance.now() - t0) };
   } catch (e) {
-    const error =
-      e.name === 'AbortError'
-        ? `Timeout: sin respuesta en ${SONDA_TIMEOUT_MS} ms (desde el navegador)`
-        : 'Sin respuesta desde el navegador (red, DNS o certificado)';
-    return { ok: false, ms: null, error };
+    // si no fue timeout, el navegador rechazó la respuesta: `tras` es lo que tardó en hacerlo
+    const timeout = e.name === 'AbortError';
+    const error = timeout
+      ? `Timeout: sin respuesta en ${SONDA_TIMEOUT_MS} ms (desde el navegador)`
+      : 'Sin respuesta desde el navegador (red, DNS o certificado)';
+    return { ok: false, ms: null, rechazo: !timeout, tras: Math.round(performance.now() - t0), error };
   } finally {
     clearTimeout(timer);
     ctrl.abort(); // corta la descarga del cuerpo
@@ -42,7 +43,15 @@ async function medirDesdeNavegador(url) {
   if (location.protocol === 'https:' && url.startsWith('http:')) return null;
 
   const primera = await muestra(url);
-  if (!primera.ok) return primera;
+  if (!primera.ok) {
+    if (!primera.rechazo) return primera;
+    const tiempos = [primera.tras];
+    for (let i = 1; i < MUESTRAS_NAVEGADOR; i++) {
+      const m = await muestra(url);
+      if (m.rechazo) tiempos.push(m.tras);
+    }
+    return { ...primera, tras: medianaDe(tiempos) };
+  }
 
   const muestras = [primera.ms];
   let fallidas = 0;
@@ -205,6 +214,11 @@ function decidirEstado(sonda, servidor, contiene) {
 
   // el navegador no llegó
   if (servidor?.tlsError) return caido(`Certificado inválido (${servidor.tlsError})`, 'navegador');
+
+  // el sitio responde pero el navegador no puede leerlo: el tiempo hasta el rechazo estima la latencia
+  if (sonda.rechazo && servidor && esOk(servidor.status)) {
+    return arriba(sonda.tras, 'Latencia estimada: el navegador rechazó la respuesta del sitio', 'estimado');
+  }
 
   // el servidor sí llegó: las mediciones se contradicen, no se declara caída
   if (servidorLlego(servidor)) {

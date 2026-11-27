@@ -196,6 +196,8 @@ TEXTOS_ES.pizarron = {
   origen_navegador: 'desde tu red',
   origen_servidor: 'desde el servidor',
   origen_navegador_tip: 'Medido por tu navegador: lo más parecido a lo que vive un usuario.',
+  origen_estimado: 'estimado',
+  origen_estimado_tip: 'El sitio no deja que tu navegador lea la respuesta; la latencia es el tiempo hasta que la rechazó y es aproximada.',
   origen_servidor_tip: 'Tu navegador no pudo medirlo; la respuesta viene del servidor del monitor y puede diferir de lo que ves desde tu red.',
   hace: 'hace',
   recien: 'recién medido',

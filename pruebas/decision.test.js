@@ -57,6 +57,19 @@ test('el navegador falla pero el servidor ve el sitio: NO es caída, es no concl
   assert.equal(r.noConcluyente, true);
 });
 
+test('el navegador rechaza la respuesta y el servidor ve 200: latencia estimada, no caída', () => {
+  const r = decidir({ ...navegadorFalla, rechazo: true, tras: 180 }, servidor(200, { time: 900 }));
+  assert.equal(r.status, 200);
+  assert.equal(r.time, 180);
+  assert.equal(r._source, 'estimado');
+});
+
+test('timeout del navegador con el servidor en 200: sigue siendo no concluyente', () => {
+  const r = decidir({ ...navegadorFalla, rechazo: false }, servidor(200, { time: 900 }));
+  assert.equal(r._source, 'servidor');
+  assert.equal(r.noConcluyente, true);
+});
+
 test('fallan el navegador y el servidor: caída confirmada', () => {
   const r = decidir(navegadorFalla, servidor(0, { error: 'ECONNREFUSED' }));
   assert.equal(r.status, 0);
