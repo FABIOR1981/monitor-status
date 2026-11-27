@@ -75,6 +75,7 @@ function crearDetalle(vista) {
   if (vista.origen === 'servidor' && vista.estado !== 'caido') {
     cuerpo.appendChild(crear('div', null, tx.detalle_servidor));
   }
+  if (vista.origen === 'estimado') cuerpo.appendChild(crear('div', null, tx.origen_estimado_tip));
 
   const datos = crear('div');
   if (vista.promedio !== null) {
@@ -188,7 +189,7 @@ function crearMosaico(vista, midiendo) {
       const origen = crear(
         'span',
         `pz-origen-${vista.origen}`,
-        ` · ${tx[`origen_${vista.origen}`]}${vista.origen === 'servidor' && vista.punto ? ` · ${nombreCentro(vista.punto)}` : ''}`
+        ` · ${tx[`origen_${vista.origen}`]}${vista.origen !== 'navegador' && vista.punto ? ` · ${nombreCentro(vista.punto)}` : ''}`
       );
       origen.title = tx[`origen_${vista.origen}_tip`];
       fila.appendChild(origen);
